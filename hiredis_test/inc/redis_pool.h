@@ -1,47 +1,75 @@
-#ifndef __REDIS_POOL_H__
-#define __REDIS_POOL_H__
-#include <iostream>
-#include <string.h>
 #include <string>
 #include <stdio.h>
 #include <memory>
-#include <mutex>
 #include <queue>
+#include <mutex>
+
 #ifdef WIN32
 #include <time.h>
 #include <WinSock2.h>
 #else
 #include <sys/time.h>
 #endif
+
 #include "hiredis/hiredis.h"
 
 #define strcasecmp _stricmp
-class KGRedisClient
+
+class RedisConn 
 {
-public:
-	KGRedisClient(std::string ip, int port, std::string password, int timeout = 2000);
-	virtual ~KGRedisClient();
-
-	redisContext* CreateContext();
-
-	//   bool ExecuteCmd_spop(const char *cmd, size_t len, std::string &response);
-	bool ExecuteCmd_spop(std::string &response, const char* format, ...);
-
-	//   redisReply* ExecuteCmd(const char *cmd, size_t len);
-	redisReply* ExecuteCmd(const char* format, ...);
-	bool ExecuteCmd(std::string &response, const char* format, ...);
 private:
-	int m_timeout;
-	int m_serverPort;
-	std::string m_setverIp;
-	std::string m_password;
-	//   CCriticalSection m_lock;
-	std::mutex _mutex;
-	std::queue<redisContext *> m_clients;
-	time_t m_beginInvalidTime;
-	static const int m_maxReconnectInterval = 3;
-	void ReleaseContext(redisContext *ctx, bool active);
-	bool CheckStatus(redisContext *ctx);
+    /* data */
+public:
+    RedisConn();
+    virtual ~RedisConn();
+	bool Init(const std::string& redis_addr, const std::size_t& port, const std::string& pwd, int conn_timeout);
+    bool RedisConnect();
+    bool RedisReConnect();
+    bool auth();
+    redisContext* ConnectWithTimeout();
+    void Release();
+
+    bool Ping();
+
+    redisReply* ExecuteCmd(const char* format, ...);
+	bool ExecuteResonse(std::string& response, const char* format, ...);
+    void ParamRly(redisReply* rly, std::vector<std::string>& params);
+    void vsprintf_args(char* buf, char* format, ...);
+
+
+
+private:
+    redisContext*   ctx_;
+    std::string     redis_ip_;
+    std::uint32_t   redis_port_;
+    std::uint32_t   time_out_;
+    std::string     redis_pwd_;
+    bool            status_;
+};
+typedef std::queue<RedisConn*> RedisConnPool;
+
+class RedisPool {
+public:
+    RedisPool();
+	~RedisPool();
+
+    bool InitPool(const std::string& redis_addr, const std::size_t& port, const std::string& pwd, int conn_timeout, std::size_t pool_size, std::size_t pool_max_size);
+
+    RedisConn* GetRedisConn();
+    void FreeRedisConn(RedisConn* redis_conn);
+    void ReleaseRedisConn();
+    void CheckStatus();
+private:
+    std::mutex mutex_;
+	RedisConnPool conn_pool_;
+
+	std::string     redis_ip_;
+	std::uint32_t   redis_port_;
+	std::uint32_t   time_out_;
+	std::string     redis_pwd_;
+	bool            conn_status_;
+	std::size_t pool_size_;
+	std::size_t pool_max_size_;
 };
 
-#endif
+typedef std::shared_ptr<RedisPool> RedisPoolPtr;

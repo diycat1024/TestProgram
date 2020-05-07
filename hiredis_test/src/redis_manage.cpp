@@ -2,7 +2,7 @@
 #include "redis_manage.h"
 RedisManage::RedisManage(/* args */)
 {
-    _redisConn.reset(new RedisConn());
+    redisClient_.reset(new DBIORedis());
 }
 
 RedisManage::~RedisManage()
@@ -15,31 +15,35 @@ RedisManage& RedisManage::instance()
     return redisManage_;
 }
 
-bool RedisManage::InitPool(const char* redis_addr, std::size_t port, std::size_t count,
-	int conn_timeout, int rw_timeout)
+bool RedisManage::InitPool(const std::string& redis_addr, const std::size_t& port, const std::string& pwd, int conn_timeout, std::size_t pool_size, std::size_t pool_max_size)
 {
-    return _redisConn->InitPool(redis_addr, port,count, conn_timeout, rw_timeout);
+    return redisClient_->InitPool(redis_addr, port, pwd, conn_timeout, pool_size, pool_max_size);
 }
 
 
 
 bool RedisManage::Set(const char* key, const char* field, const char* value)
 {
-    return _redisConn->Set(key, field, value);
+    return redisClient_->Set(key, field, value);
 }
 
 const char* RedisManage::Get(const char* key, const char* field)
 {
-    return _redisConn->Get(key, field);
+    return redisClient_->Get(key, field);
 }
 
 
 bool RedisManage::HSet(const char* key, const char* field, const char* value)
 {
-    return _redisConn->HSet(key, field, value);
+    return redisClient_->HSet(key, field, value);
 }
 
 bool RedisManage::HGet(const char* key, const char* field, std::string& value)
 {
-     return _redisConn->HGet(key, field, value);
+     return redisClient_->HGet(key, field, value);
+}
+
+void RedisManage::CheckStatus()
+{
+    redisClient_->CheckStatus();
 }

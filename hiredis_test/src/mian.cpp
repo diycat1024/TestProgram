@@ -1,15 +1,14 @@
 #include <iostream>
 #include "redis_manage.h"
 #include <thread>
-#include <Windows.h>
 
 
 int main()
 {
 	RedisManage redisManage;
 	
-	redisManage.InitPool("192.168.0.212",6379, 30, 20,20);
-
+	redisManage.InitPool("192.168.0.212",6379,"",2000,50,100);
+	redisManage.CheckStatus();
 	// if (redisManage.HSet("user:last","bigant1", "bbbbb"))
 	// {
 	// 	printf("插入成功");
@@ -17,7 +16,7 @@ int main()
 	auto threadFunc =  [&]() {
 		for (int i=0; i< 10000000000; i++) {
 			std::string rets;
-			bool ret = redisManage.HGet("user:base","DE61F1EF-FC53-968F-118A-9378CE037D85@1569505695714", rets);
+			bool ret = redisManage.HGet("user:base","DE61F1EF-FC53-968F-118A-9378CE037D85@1569505695950", rets);
 			printf("chnegg：%s\n", rets);
 		}
 	};

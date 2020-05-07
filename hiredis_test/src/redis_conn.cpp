@@ -11,7 +11,7 @@ RedisConn::~RedisConn()
 bool RedisConn::InitPool(const std::string& redis_addr, std::size_t port, std::size_t count,
 	int conn_timeout, int rw_timeout)
 {
-	kgClient_.reset(new KGRedisClient(redis_addr, port, ""));
+	kgClient_.reset(new RedisClient(redis_addr, port, ""));
 	return true;
 }
 

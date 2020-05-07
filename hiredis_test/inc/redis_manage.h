@@ -1,10 +1,7 @@
-
-
-#include "redis_conn.h"
 #include <string>
 #include <memory>
+#include "redis_client.h"
 
-typedef std::shared_ptr<RedisConn> RedisConnPtr;
 class RedisManage{
 public:
     RedisManage(/* args */);
@@ -12,8 +9,8 @@ public:
 
     RedisManage& instance();
 
-    bool InitPool(const char* redis_addr, std::size_t port, std::size_t count,
-	int conn_timeout, int rw_timeout);
+    bool InitPool(const std::string& redis_addr, const std::size_t& port, const std::string& pwd, int conn_timeout, std::size_t pool_size, std::size_t pool_max_size);
+    void CheckStatus();
 
     //String
     bool Set(const char* key, const char* field, const char* value);
@@ -24,5 +21,5 @@ public:
     bool HGet(const char* key, const char* field, std::string& value);
 private:
     /* data */
-    RedisConnPtr _redisConn;
+    std::shared_ptr<DBIORedis> redisClient_;
 };
