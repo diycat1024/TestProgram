@@ -47,3 +47,8 @@ void RedisManage::CheckStatus()
 {
     redisClient_->CheckStatus();
 }
+
+void RedisManage::HGetAll(const std::string& key, std::map<std::string,std::string>& reponse)
+{
+    redisClient_->HGetAll(key, reponse);
+}

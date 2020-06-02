@@ -1,6 +1,6 @@
-#include "redis_conn.h"
+#include "redis_pool.h"
 
-RedisConn::RedisConn():ctx_(nullptr)
+RedisConn::RedisConn() :ctx_(nullptr)
 {
 	redis_ip_ = "127.0.0.1";
 	redis_port_ = 6379;
@@ -82,7 +82,7 @@ bool RedisConn::auth()
 		}
 		freeReplyObject(reply);
 	}
-
+	status_ = bRet;
 	return bRet;
 }
 
@@ -128,7 +128,17 @@ bool RedisConn::Ping()
 
 bool RedisConn::ExecuteResonse(std::string& response, const char* format, ...)
 {
-	if (ctx_ == NULL) return NULL;
+	if (ctx_ == NULL) 
+	{
+		status_ = false;
+		return status_;
+	}
+	if (!status_)
+	{
+		if (!RedisReConnect())
+			return false;
+	}
+	status_ = true;
 
 	/*std::vector<char> buf;
 	buf.resize(10000);
@@ -143,10 +153,14 @@ bool RedisConn::ExecuteResonse(std::string& response, const char* format, ...)
 	redisReply* reply = static_cast<redisReply*>(redisCommand(ctx_, format, args));
 	va_end(args);
 
-	if (reply == NULL) return false;
+	if (reply == NULL)
+	{
+		status_ = false;
+		return status_;
+	}
 
 	std::shared_ptr<redisReply> autoFree(reply, freeReplyObject);
-	
+
 	if (reply->type == REDIS_REPLY_INTEGER)
 	{
 		response = std::to_string(reply->integer);
@@ -177,13 +191,84 @@ bool RedisConn::ExecuteResonse(std::string& response, const char* format, ...)
 		redisReply* rly0 = NULL;
 		std::vector<std::string > params;
 		ParamRly(reply, params);
-		return false;
+		return true;
 	}
 	else
 	{
 		response = "Undefine Reply Type";
+		status_ = false;
 		return false;
 	}
+}
+
+bool RedisConn::ExecuteVector(std::vector<std::string>& response, const char* format, ...)
+{
+	if (ctx_ == NULL) 
+	{
+		status_ = false;
+		return status_;
+	}
+	if (!status_)
+	{
+		if (!RedisReConnect())
+			return false;
+	}
+	status_ = true;
+
+	va_list args;
+	va_start(args, format);
+	redisReply* reply = static_cast<redisReply*>(redisCommand(ctx_, format, args));
+	va_end(args);
+
+	if (reply == NULL)
+	{
+		status_ = false;
+		return status_;
+	}
+
+	std::shared_ptr<redisReply> autoFree(reply, freeReplyObject);
+
+	if (reply->type == REDIS_REPLY_ARRAY)
+	{
+		ParamRly(reply, response);
+		return true;
+	}
+	return true;
+}
+
+bool RedisConn::ExecuteMap(std::map<std::string, std::string>& response, const char* format, ...)
+{
+	if (ctx_ == NULL) 
+	{
+		status_ = false;
+		return status_;
+	}
+	if (!status_)
+	{
+		if (!RedisReConnect())
+			return false;
+	}
+	status_ = true;
+
+	va_list args;
+	va_start(args, format);
+	redisReply* reply = static_cast<redisReply*>(redisCommand(ctx_, format, args));
+	va_end(args);
+
+	if (reply == NULL)
+	{
+		status_ = false;
+		return status_;
+	}
+
+	std::shared_ptr<redisReply> autoFree(reply, freeReplyObject);
+
+	if (reply->type == REDIS_REPLY_ARRAY)
+	{
+		ParamRlyHash(reply, response);
+		return true;
+	}
+	return true;
 }
 
 redisReply* RedisConn::ExecuteCmd(const char* format, ...)
@@ -223,12 +308,60 @@ void RedisConn::ParamRly(redisReply* rly, std::vector<std::string>& params)
 	}
 }
 
+void RedisConn::ParamRlyHash(redisReply* rly, std::map<std::string, std::string>& params)
+{
+	redisReply* rly0 = NULL;
+	int m =0;
+	std::string key, value;
+	if (rly->type == REDIS_REPLY_ARRAY)
+	{
+		for (int i = 0; i < (int)rly->elements; i++) {
+			rly0 = rly->element[i];
+			if (rly0->type == REDIS_REPLY_ARRAY) {
+				ParamRlyHash(rly0, params);
+			}
+			else
+			{
+				if (m==0)
+				{
+					key = rly0->str;
+					m = 1;
+				}
+				else
+				{
+					params[key] = rly0->str;
+					m = 0;
+				}
+				
+			}
 
+		}
+	}
+	else
+	{
+		if (m==0)
+		{
+			key = rly0->str;
+			m = 1;
+		}
+		else
+		{
+			params[key] = rly0->str;
+			m = 0;
+		}
+	}
+}
 
-// Á¬½Ó³Ø
+// ï¿½ï¿½ï¿½Ó³ï¿½
 RedisPool::RedisPool()
 {
-
+	redis_ip_ = "127.0.0.1";
+	redis_port_ = 6379;
+	time_out_ = 1;
+	redis_pwd_ = "";
+	conn_status_ = false;
+	pool_size_ = 50;
+	pool_max_size_ = 150;
 }
 
 RedisPool::~RedisPool()
@@ -246,30 +379,60 @@ bool RedisPool::InitPool(const std::string& redis_addr, const std::size_t& port,
 	pool_max_size_ = pool_max_size_;
 
 	for (int i = 0; i < pool_size; i++) {
-		RedisConn* pRedisconn = new RedisConn;
-		if (NULL == pRedisconn) continue;
-
-		pRedisconn->Init(redis_ip_, redis_port_, redis_pwd_, time_out_);
-		if (pRedisconn->RedisConnect())
-			conn_pool_.push(pRedisconn);
-		else
-			delete pRedisconn;
+		this->CreateConnection();
 	}
+	if (conn_pool_.empty())
+		return false;
 
 	return true;
 }
 
-RedisConn* RedisPool::GetRedisConn()
+RedisConnPrt RedisPool::GetRedisConn()
 {
-	std::lock_guard<std::mutex> lock(mutex_);
-	if (conn_pool_.empty()) return NULL;
-	RedisConn* pRedisconn = pRedisconn = static_cast<RedisConn*>(conn_pool_.front());
-	conn_pool_.pop();
-	return pRedisconn;
+	RedisConnPrt connPtr(new RedisConn);
+	while (1)
+	{
+		std::lock_guard<std::mutex> lock(mutex_);
+		if (conn_pool_.empty()) {
+			if (pool_size_ <= pool_max_size_)
+			{
+				this->CreateConnection();
+				if (conn_pool_.size() == 0)
+				{
+					return RedisConnPrt();
+				}
+			}
+			continue;
+		}
 
+		connPtr = conn_pool_.front();
+		conn_pool_.pop();
+		if (connPtr.get()) {
+			break;
+		}
+		else {
+			this->CreateConnection();
+			continue;;
+		}
+	}
+	return connPtr;
 }
 
-void RedisPool::FreeRedisConn(RedisConn* redis_conn)
+void RedisPool::CreateConnection()
+{
+	RedisConnPrt connPtr(new RedisConn);
+	connPtr->Init(redis_ip_, redis_port_, redis_pwd_, time_out_);
+	if (connPtr->RedisConnect())
+	{
+		if (connPtr.get())
+		{
+			conn_pool_.push(connPtr);
+			pool_size_++;
+		}
+	}
+}
+
+void RedisPool::FreeRedisConn(RedisConnPrt redis_conn)
 {
 	if (NULL != redis_conn) {
 		std::lock_guard<std::mutex> lock(mutex_);
@@ -291,8 +454,8 @@ void RedisPool::CheckStatus()
 	std::lock_guard<std::mutex> lock(mutex_);
 	for (int i = 0; i < conn_pool_.size(); i++)
 	{
-		RedisConn* conn = static_cast<RedisConn*>(conn_pool_.front());
-		if (!conn->Ping())
-			conn->RedisReConnect();
+		RedisConnPrt connPtr = conn_pool_.front();
+		if (!connPtr->Ping())
+			connPtr->RedisReConnect();
 	}
 }

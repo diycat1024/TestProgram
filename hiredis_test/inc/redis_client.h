@@ -18,7 +18,10 @@ public:
 
 	// Hash
 	bool HSet(const std::string& key, const std::string& field, const std::string& value);
-	bool HGet(const std::string& key, const std::string& field, std::string& reponse);
+	bool HGet(const std::string& key, const std::string& field, std::string& response);
+	bool HKeys(const std::string& key, std::vector<std::string>& reponse);
+	bool HGetAllByKeys(const std::string& key, std::map<std::string, std::string>& response);
+	bool HGetAll(const std::string& key,  std::map<std::string, std::string>& response);
 
 	
 private:

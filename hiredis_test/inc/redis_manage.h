@@ -19,6 +19,8 @@ public:
     //Hash
     bool HSet(const char* key, const char* field, const char* value);
     bool HGet(const char* key, const char* field, std::string& value);
+    void HGetAll(const std::string& key, std::map<std::string,std::string>& reponse);
+    
 private:
     /* data */
     std::shared_ptr<DBIORedis> redisClient_;
