@@ -4,6 +4,7 @@ SET(PROJECT_OUTNAME HiRedisTest)
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_definitions(-D_WIN32_WINNT=0x0501)
+add_definitions(-DUNICODE)
 #add_definitions(-DCMAKE_TOOLCHAIN_FILE="E:/idzqj/Work/harry/IM-Server/vcpkg/scripts/buildsystems/vcpkg.cmake")
  SET(CMAKE_EXE_LINKER_FLAGS /NODEFAULTLIB:"MSVCRT.lib")
 

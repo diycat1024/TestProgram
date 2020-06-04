@@ -41,7 +41,7 @@ const char* DBIORedis::Get(const std::string& key, const std::string& field)
 {
 	std::string reponse;
 	RedisConnPrt conn = pool_->GetRedisConn();
-	if (!conn) return false;
+	if (!conn) return NULL;
 
 	std::string commond = "get " + key;
 	bool ret = conn->ExecuteResonse(reponse, commond.c_str());
