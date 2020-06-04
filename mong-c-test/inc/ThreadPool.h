@@ -76,6 +76,9 @@ auto ThreadPool::enqueue(F&& f, Args&&... args)
 			throw std::runtime_error("enqueue on stopped ThreadPool");
 
 		tasks.emplace([task]() { (*task)(); });
+
+		std::thread::id tid = std::this_thread::get_id();
+		std::cout << " current tid:"<<  tid << std::endl;
 	}
 	condition.notify_one();
 	return res;

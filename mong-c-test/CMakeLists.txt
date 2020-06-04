@@ -2,9 +2,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT(MongoCTest)
 SET(PROJECT_OUTNAME MongoCTest)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-endif()
 
 IF (WIN32)
 ELSEIF(WIN32)
@@ -16,12 +13,13 @@ set (ThirdParty "E:/idzqj/Work/harry/IM-Server/vcpkg/installed/x64-windows")
 #设置头文件路径
 INCLUDE_DIRECTORIES(
         ${PROJECT_SOURCE_DIR}/../inc
-		${PROJECT_SOURCE_DIR}/inc
-		${ThirdParty}/include
+        ${PROJECT_SOURCE_DIR}/inc
+        ${ThirdParty}/include
 )
 # 设置库目录
 link_directories(
         ${PROJECT_SOURCE_DIR}/../lib
+        ${ThirdParty}/lib
 )
 
 MESSAGE("mongocxx include:" ${ThirdParty}/include)
@@ -34,7 +32,7 @@ file(GLOB_RECURSE SRC_FILES src/*.cpp)
 file(GLOB_RECURSE HEAD_FILES inc/*.h)
 
 ADD_EXECUTABLE(${PROJECT_OUTNAME} ${SRC_FILES} ${HEAD_FILES})
-target_link_libraries(${PROJECT_OUTNAME} PRIVATE mongo bson)
+target_link_libraries(${PROJECT_OUTNAME} PRIVATE mongoc-1.0 bson-1.0)
 
 install(TARGETS ${PROJECT_OUTNAME}
         RUNTIME DESTINATION bin)

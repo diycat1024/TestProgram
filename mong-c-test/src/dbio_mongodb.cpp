@@ -1,12 +1,10 @@
-#include "dbio_mongodb.h"
-
-
 /*
  * dbio_mysql.cpp
  *
  *  Created on: Aug 20, 2015
  *      Author: root
  */
+#include "dbio_mongodb.h"
 
 MongoDBConnectionPool::MongoDBConnectionPool()
 {
@@ -21,14 +19,16 @@ MongoDBConnectionPool::~MongoDBConnectionPool()
 void MongoDBConnectionPool::mongodb_init(const char* url)
 {
 	m_strurl = url;
+	create_client_pool();
 }
 
 bool MongoDBConnectionPool::create_client_pool()
 {
 	mongoc_client_pool_t * client_pool = nullptr;
 	mongoc_uri_t         *uri = nullptr;
-	uri = mongoc_uri_new(m_strurl.c_str());//urlÖ¸¶¨ipµØÖ·£¬Ã»ÓÐÖ¸¶¨
+	uri = mongoc_uri_new(m_strurl.c_str());//urlÖ¸ï¿½ï¿½ipï¿½ï¿½Ö·ï¿½ï¿½Ã»ï¿½ï¿½Ö¸ï¿½ï¿½
 	client_pool = mongoc_client_pool_new(uri);
+	//mongoc_client_pool_max_size(client_pool, 100);
 	m_pool = static_cast<void*>(client_pool);
 	m_url = static_cast<void*>(uri);
 	return true;
@@ -54,23 +54,23 @@ void MongoDBConnectionPool::free_bjson(const bson_t *command)
 
 bool MongoDBConnectionPool::insert_coll(const char*databasename, const char* collname, const bson_t *doc)
 {
-	mongoc_client_pool_t *pool = static_cast<mongoc_client_pool_t*>(m_pool);
-	mongoc_client_t      *client;
+
+	mongoc_client_pool_t* pool = static_cast<mongoc_client_pool_t*>(m_pool);
+	mongoc_client_t* client;
 	bson_error_t error;
-	client = mongoc_client_pool_pop(pool);//´ÓÁ¬½Ó³ØÖÐ»ñÈ¡Á¬½Ó¶ÔÏó 
+	client = mongoc_client_pool_pop(pool);//ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½ï¿½Ð»ï¿½È¡ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ 
 	if (client == nullptr) {
-		//H3C_CLOUD_MONGODB_LOG1(H3C_LOG_ERROR, "fail get client ptr url:[%s] database name:[%s]", databasename);
 		return false;
 	}
 
-	mongoc_collection_t *collection = mongoc_client_get_collection(client, databasename, collname);
-	// ½«bsonÎÄµµ²åÈëµ½¼¯ºÏ
+	mongoc_collection_t* collection = mongoc_client_get_collection(client, databasename, collname);
+	// ï¿½ï¿½bsonï¿½Äµï¿½ï¿½ï¿½ï¿½ëµ½ï¿½ï¿½ï¿½ï¿½
 	if (!mongoc_collection_insert(collection, MONGOC_INSERT_NONE, doc, NULL, &error)) {
 		free_bjson(doc);
 		mongoc_client_pool_push(pool, client);
 		return false;
 	}
-	// ÊÍ·Å×ÊÔ´
+	// ï¿½Í·ï¿½ï¿½ï¿½Ô´
 	free_bjson(doc);
 	mongoc_client_pool_push(pool, client);
 	return true;
@@ -82,20 +82,20 @@ bool MongoDBConnectionPool::delete_coll(const char*databasename, const char* col
 	mongoc_client_pool_t *pool = static_cast<mongoc_client_pool_t*>(m_pool);
 	mongoc_client_t      *client;
 	bson_error_t error;
-	client = mongoc_client_pool_pop(pool);//´ÓÁ¬½Ó³ØÖÐ»ñÈ¡Á¬½Ó¶ÔÏó 
+	client = mongoc_client_pool_pop(pool);//ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½ï¿½Ð»ï¿½È¡ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ 
 	if (client == nullptr) {
 		//H3C_CLOUD_MONGODB_LOG1(H3C_LOG_ERROR, "fail get client ptr url:[%s] database name:[%s]", databasename);
 		return false;
 	}
 
 	mongoc_collection_t *collection = mongoc_client_get_collection(client, databasename, collname);
-	// Ö´ÐÐÉ¾³ý²Ù×÷¡£ÕâÀïÖ»ÄÜÆ¥Åä_id×Ö¶Î£¬Ò²¾ÍÖ»ÄÜÉ¾³ýÉÏÃæ²åÈëµÄÎÄµµ
+	// Ö´ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½Æ¥ï¿½ï¿½_idï¿½Ö¶Î£ï¿½Ò²ï¿½ï¿½Ö»ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½
 	if (!mongoc_collection_remove(collection, MONGOC_REMOVE_SINGLE_REMOVE, doc, NULL, &error)) {
 		free_bjson(doc);
 		mongoc_client_pool_push(pool, client);
 		return false;
 	}
-	// ÊÍ·Å×ÊÔ´
+	// ï¿½Í·ï¿½ï¿½ï¿½Ô´
 	free_bjson(doc);
 	mongoc_client_pool_push(pool, client);
 	return true;
@@ -107,21 +107,21 @@ bool MongoDBConnectionPool::update_coll(const char*databasename, const char* col
 	mongoc_client_pool_t *pool = static_cast<mongoc_client_pool_t*>(m_pool);
 	mongoc_client_t      *client;
 	bson_error_t error;
-	client = mongoc_client_pool_pop(pool);//´ÓÁ¬½Ó³ØÖÐ»ñÈ¡Á¬½Ó¶ÔÏó 
+	client = mongoc_client_pool_pop(pool);//ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½ï¿½Ð»ï¿½È¡ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ 
 	if (client == nullptr) {
 		//H3C_CLOUD_MONGODB_LOG1(H3C_LOG_ERROR, "fail get client ptr url:[%s] database name:[%s]", databasename);
 		return false;
 	}
 
 	mongoc_collection_t *collection = mongoc_client_get_collection(client, databasename, collname);
-	// Ö´ÐÐupdate²Ù×÷¡£Õâ¸ö²Ù×÷½«Ê¹ÓÃupdateµÄÄÚÈÝÈ¥Ìæ»»Ö®Ç°²åÈëµ½Êý¾Ý¿âÖÐµÄdocµÄÄÚÈÝ
+	// Ö´ï¿½ï¿½updateï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½updateï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¥ï¿½æ»»Ö®Ç°ï¿½ï¿½ï¿½ëµ½ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½Ðµï¿½docï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	if (!mongoc_collection_update(collection, MONGOC_UPDATE_NONE, _id, doc, NULL, &error)) {
 		free_bjson(_id);
 		free_bjson(doc);
 		mongoc_client_pool_push(pool, client);
 		return false;
 	}
-	// ÊÍ·Å×ÊÔ´
+	// ï¿½Í·ï¿½ï¿½ï¿½Ô´
 	free_bjson(_id);
 	free_bjson(doc);
 	mongoc_client_pool_push(pool, client);
@@ -134,7 +134,7 @@ bool MongoDBConnectionPool::select_coll(const char*databasename, const char* col
 	mongoc_client_t      *client;
 	bson_error_t error;
 
-	client = mongoc_client_pool_pop(pool);//´ÓÁ¬½Ó³ØÖÐ»ñÈ¡Á¬½Ó¶ÔÏó 
+	client = mongoc_client_pool_pop(pool);//ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½ï¿½Ð»ï¿½È¡ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ 
 	if (client == nullptr) {
 		//H3C_CLOUD_MONGODB_LOG1(H3C_LOG_ERROR, "fail get client ptr url:[%s] database name:[%s]", databasename);
 		return false;
@@ -142,11 +142,11 @@ bool MongoDBConnectionPool::select_coll(const char*databasename, const char* col
 
 	mongoc_collection_t *collection = mongoc_client_get_collection(client, databasename, collname);
 
-	// queryÊÇÒ»¸ö¿ÕµÄBSONÎÄµµ£¬ÓÃÓÚ×ö²éÑ¯ËµÃ÷·ûµÄÊ±ºòÆ¥ÅäËùÓÐÎÄµµ¡£
-	// Ö´ÐÐ²éÑ¯²Ù×÷
+	// queryï¿½ï¿½Ò»ï¿½ï¿½ï¿½Õµï¿½BSONï¿½Äµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Æ¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½ï¿½ï¿½
+	// Ö´ï¿½Ð²ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½
 	mongoc_cursor_t *cursor = mongoc_collection_find(collection, MONGOC_QUERY_NONE, 0, 0, 0, query, NULL, NULL);
 
-	const bson_t *doc = nullptr;
+	const bson_t *doc;
 	while (!mongoc_cursor_error(cursor, &error) &&
 		mongoc_cursor_more(cursor)) {
 		if (mongoc_cursor_next(cursor, &doc))
@@ -156,36 +156,106 @@ bool MongoDBConnectionPool::select_coll(const char*databasename, const char* col
 	}
 
 	bool result = true;
+	if (mongoc_cursor_error(cursor, &error)) 
+		result = false;
+
+	if (doc) free_bjson(doc);
+	delete doc;
+
+	mongoc_cursor_destroy(cursor);
+	mongoc_client_pool_push(pool, client);
+	return result;
+}
+bool MongoDBConnectionPool::select_coll_by_fields(const char*databasename, const char* collname, bson_t* query, bson_t* fields, std::vector<std::map<std::string, std::string>>& msg_data)
+{
+	mongoc_client_pool_t *pool = static_cast<mongoc_client_pool_t*>(m_pool);
+	mongoc_client_t      *client;
+	bson_error_t error;
+
+	client = mongoc_client_pool_pop(pool);//ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½ï¿½Ð»ï¿½È¡ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ 
+	if (client == nullptr) {
+		//H3C_CLOUD_MONGODB_LOG1(H3C_LOG_ERROR, "fail get client ptr url:[%s] database name:[%s]", databasename);
+		return false;
+	}
+
+	mongoc_collection_t *collection = mongoc_client_get_collection(client, databasename, collname);
+
+	// queryï¿½ï¿½Ò»ï¿½ï¿½ï¿½Õµï¿½BSONï¿½Äµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Æ¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½ï¿½ï¿½
+	// Ö´ï¿½Ð²ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½
+	mongoc_cursor_t *cursor = mongoc_collection_find(collection, MONGOC_QUERY_NONE, 0, 0, 0, query, fields, NULL);
+
+	const bson_t *doc;
+	while (!mongoc_cursor_error(cursor, &error) &&
+		mongoc_cursor_more(cursor)) {
+		if (mongoc_cursor_next(cursor, &doc))
+		{
+			GetVecRecord(doc, msg_data);
+		}
+	}
+
+	bool result = true;
 	if (mongoc_cursor_error(cursor, &error))
 		result = false;
 
 	if (doc) free_bjson(doc);
+	delete doc;
 
 	mongoc_cursor_destroy(cursor);
 	mongoc_client_pool_push(pool, client);
 	return result;
 }
 
-
-bool MongoDBConnectionPool::batch_insert_coll(const char*databasename, const char* collname, const bson_t **docs, size_t n_documents)
+bool  MongoDBConnectionPool::find_coll(const char*databasename, const char* collname, bson_t* query)
 {
 	mongoc_client_pool_t *pool = static_cast<mongoc_client_pool_t*>(m_pool);
 	mongoc_client_t      *client;
 	bson_error_t error;
-	client = mongoc_client_pool_pop(pool);//´ÓÁ¬½Ó³ØÖÐ»ñÈ¡Á¬½Ó¶ÔÏó 
+
+	client = mongoc_client_pool_pop(pool);//ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½ï¿½Ð»ï¿½È¡ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ 
+	if (client == nullptr) {
+		//H3C_CLOUD_MONGODB_LOG1(H3C_LOG_ERROR, "fail get client ptr url:[%s] database name:[%s]", databasename);
+		return false;
+	}
+
+	mongoc_collection_t *collection = mongoc_client_get_collection(client, databasename, collname);
+
+	// queryï¿½ï¿½Ò»ï¿½ï¿½ï¿½Õµï¿½BSONï¿½Äµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¯Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½Æ¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½ï¿½ï¿½
+	// Ö´ï¿½Ð²ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½
+	mongoc_cursor_t *cursor = mongoc_collection_find(collection, MONGOC_QUERY_NONE, 0, 0, 0, query, NULL, NULL);
+
+	const bson_t *doc;
+	while (!mongoc_cursor_error(cursor, &error) &&
+		mongoc_cursor_more(cursor)) {
+		if (mongoc_cursor_next(cursor, &doc))
+		{
+			return true;
+		}
+	}
+	mongoc_cursor_destroy(cursor);
+	mongoc_client_pool_push(pool, client);
+	return false;
+}
+
+
+bool MongoDBConnectionPool::batch_insert_coll(const char*databasename, const char* collname,const bson_t **docs, size_t n_documents)
+{
+	mongoc_client_pool_t *pool = static_cast<mongoc_client_pool_t*>(m_pool);
+	mongoc_client_t      *client;
+	bson_error_t error;
+	client = mongoc_client_pool_pop(pool);//ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½ï¿½Ð»ï¿½È¡ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ 
 	if (client == nullptr) {
 		//H3C_CLOUD_MONGODB_LOG1(H3C_LOG_ERROR, "fail get client ptr url:[%s] database name:[%s]", databasename);
 		return false;
 	}
 	bson_t *reply = new bson_t;
 	mongoc_collection_t *collection = mongoc_client_get_collection(client, databasename, collname);
-	// ½«bsonÎÄµµ²åÈëµ½¼¯ºÏ
+	// ï¿½ï¿½bsonï¿½Äµï¿½ï¿½ï¿½ï¿½ëµ½ï¿½ï¿½ï¿½ï¿½
 	if (!mongoc_collection_insert_many(collection, docs, n_documents, NULL, NULL, &error)) {
 		free_bjson(*docs);
 		mongoc_client_pool_push(pool, client);
 		return false;
 	}
-	// ÊÍ·Å×ÊÔ´
+	// ï¿½Í·ï¿½ï¿½ï¿½Ô´
 	free_bjson(*docs);
 	mongoc_client_pool_push(pool, client);
 	return true;
@@ -225,6 +295,56 @@ void MongoDBConnectionPool::GetRecord(const bson_t *doc, std::vector<std::map<st
 	msg_data.push_back(tmp_data);
 }
 
+void MongoDBConnectionPool::GetVecRecord(const bson_t *doc, std::vector<std::map<std::string, std::string>>& msg_data)
+{
+	bson_iter_t iter;
+	bson_iter_init(&iter, doc);
+	uint32_t len = 12;
+	const uint8_t* uintlen = nullptr;
+	bson_iter_t child;
+	bson_iter_t child1;
+
+	std::string key, value, k1, value1;
+	bson_type_t type;
+	std::map < std::string, std::string > tmp_data;
+	while (bson_iter_next(&iter))
+	{
+		key = bson_iter_key(&iter);
+		type = bson_iter_type(&iter);
+		switch (type)
+		{
+		case BSON_TYPE_UTF8:
+			value = bson_iter_utf8(&iter, &len);
+			tmp_data[key] = value;
+			break;
+		case BSON_TYPE_ARRAY:
+			tmp_data.clear();
+			bson_iter_array(&iter, &len, &uintlen);
+			bson_iter_recurse(&iter, &child);
+			while (bson_iter_next(&child)) {
+				bson_iter_recurse(&child, &child1);
+				while (bson_iter_next(&child1)) {
+					k1 = bson_iter_key(&child1);
+					type = bson_iter_type(&child1);
+					if (BSON_TYPE_UTF8 == type)
+						value = bson_iter_utf8(&child1, &len);
+					tmp_data[k1] = value;
+				}
+				msg_data.push_back(tmp_data);
+			}
+			break;
+		default:
+			break;
+		}
+
+	}
+	if (tmp_data.size() < 1) return;
+	//msg_data.push_back(tmp_data);
+}
+
+
+
+
 
 DBIOMongoDB& DBIOMongoDB::instance()
 {
@@ -232,42 +352,39 @@ DBIOMongoDB& DBIOMongoDB::instance()
 	return s_instance;
 }
 
+DBIOMongoDB::DBIOMongoDB():m_mongodb_ptr(NULL)
+{
+
+}
+
+DBIOMongoDB::~DBIOMongoDB()
+{
+
+}
+
 bool DBIOMongoDB::mongodb_init(const char* url)
 {
-	MongoDBConnectionPool* client_pool = new MongoDBConnectionPool();
-	client_pool->mongodb_init(url);
-	client_pool->create_client_pool();
-
-	m_mongodb_ptr = static_cast<void*>(client_pool);
+	m_mongodb_ptr.reset(new MongoDBConnectionPool());
+	m_mongodb_ptr->mongodb_init(url);
 	return true;
 }
 
 bool DBIOMongoDB::mongodb_cleanup()
 {
-	bool ulret = false;
-	MongoDBConnectionPool* dbapi = static_cast<MongoDBConnectionPool*>(m_mongodb_ptr);
-	if (dbapi == nullptr) { return ulret; }
-	return dbapi->destory_client_pool();
+	return m_mongodb_ptr->destory_client_pool();
 }
 
 bool DBIOMongoDB::select_coll(const char* dbname, const char* collname, const char* id_, std::vector<std::map<std::string, std::string>>& msg_data)
 {
-	MongoDBConnectionPool* dbapi = static_cast<MongoDBConnectionPool*>(m_mongodb_ptr);
-	if (dbapi == nullptr) { return false; }
-
 	//bson_t* cond = bson_new_from_json((const unsigned char*)command.c_str(), command.length(), &errorinfo);
 
 	bson_t * query = bson_new();
-	return dbapi->select_coll(dbname, collname, query, msg_data);
+	return m_mongodb_ptr->select_coll(dbname, collname, query, msg_data);
 }
 
 
 bool DBIOMongoDB::insert_coll(const char* dbname, const char* collname, const std::map<std::string, std::string>& map_data)
 {
-	MongoDBConnectionPool* dbapi = static_cast<MongoDBConnectionPool*>(m_mongodb_ptr);
-	if (dbapi == nullptr) { return false; }
-	if (map_data.size() < 1) return false;
-
 	std::string key, value;
 	bson_t* doc = bson_new();
 
@@ -277,7 +394,7 @@ bool DBIOMongoDB::insert_coll(const char* dbname, const char* collname, const st
 		value = itr.second;
 		BSON_APPEND_UTF8(doc, key.c_str(), value.c_str());
 	}
-	return dbapi->insert_coll(dbname, collname, doc);
+	return m_mongodb_ptr->insert_coll(dbname, collname, doc);
 }
 
 
@@ -285,8 +402,6 @@ bool DBIOMongoDB::insert_coll(const char* dbname, const char* collname, const st
 
 bool DBIOMongoDB::delete_coll(const char* dbname, const char* collname, const std::map<std::string, std::string>& map_data)
 {
-	MongoDBConnectionPool* dbapi = static_cast<MongoDBConnectionPool*>(m_mongodb_ptr);
-	if (dbapi == nullptr) { return false; }
 	if (map_data.size() < 1) return false;
 
 	std::string key, value;
@@ -297,14 +412,12 @@ bool DBIOMongoDB::delete_coll(const char* dbname, const char* collname, const st
 		value = itr.second;
 		BSON_APPEND_UTF8(doc, key.c_str(), value.c_str());
 	}
-	return dbapi->delete_coll(dbname, collname, doc);
+	return m_mongodb_ptr->delete_coll(dbname, collname, doc);
 }
 
 
 bool DBIOMongoDB::update_coll(const char* dbname, const char* collname, const std::map<std::string, std::string>& map_qurey, const std::map<std::string, std::string>& map_data)
 {
-	MongoDBConnectionPool* dbapi = static_cast<MongoDBConnectionPool*>(m_mongodb_ptr);
-	if (dbapi == nullptr) { return false; }
 	if (map_data.size() < 1 || map_qurey.size() < 1) return false;
 
 	std::string key, value;
@@ -324,13 +437,11 @@ bool DBIOMongoDB::update_coll(const char* dbname, const char* collname, const st
 		value = itr.second;
 		BSON_APPEND_UTF8(doc, key.c_str(), value.c_str());
 	}
-	return dbapi->update_coll(dbname, collname, &query, doc);
+	return m_mongodb_ptr->update_coll(dbname, collname, &query, doc);
 }
 
 bool DBIOMongoDB::select_coll(const char* dbname, const char* collname, const std::map<std::string, std::string>& map_data, std::vector<std::map<std::string, std::string>> & msg_data)
 {
-	MongoDBConnectionPool* dbapi = static_cast<MongoDBConnectionPool*>(m_mongodb_ptr);
-	if (dbapi == nullptr) { return false; }
 	if (map_data.size() < 1) return false;
 
 	std::string key, value;
@@ -342,28 +453,156 @@ bool DBIOMongoDB::select_coll(const char* dbname, const char* collname, const st
 		value = itr.second;
 		BSON_APPEND_UTF8(query, key.c_str(), value.c_str());
 	}
-	return dbapi->select_coll(dbname, collname, query, msg_data);
+	return m_mongodb_ptr->select_coll(dbname, collname, query, msg_data);
 }
 
-bool DBIOMongoDB::InsertBatchColl(const char* dbname, const char* collname, const std::vector<std::map<std::string, std::string>>& map_data)
+bool DBIOMongoDB::find_coll(const char* dbname, const char* collname, const std::map<std::string, std::string>& map_data)
 {
-	MongoDBConnectionPool* dbapi = static_cast<MongoDBConnectionPool*>(m_mongodb_ptr);
-	if (dbapi == nullptr) { return false; }
+	std::string key, value;
+	bson_t * query = bson_new();
+
+	for (auto &itr : map_data)
+	{
+		key = itr.first;
+		value = itr.second;
+		BSON_APPEND_UTF8(query, key.c_str(), value.c_str());
+	}
+	return m_mongodb_ptr->find_coll(dbname, collname, query);
+}
+
+bool DBIOMongoDB::InsertNoticeColl(const char* dbname, const char* collname, const std::map<std::string, std::string> id_map, const std::map<std::string, std::vector<std::map<std::string, std::string>>>& map_data)
+{
 	if (map_data.size() < 1) return false;
 
 	std::string key, value;
 	bson_t* doc = bson_new();
-	bson_t** docs = nullptr;
+	bson_t child;
+	bson_t child2;
+	char        buf[16];
+	std::size_t      keylen;
+	const       char *key1;
+	bson_init(&child2);
 
+
+	for (auto &itr : id_map)
+	{
+		key = itr.first;
+		value = itr.second;
+		BSON_APPEND_UTF8(doc, key.c_str(), value.c_str());
+	}
+	//
+	int i = 0;
 	for (auto &itr : map_data)
 	{
-		for (auto& itr_data : itr)
-		{
-			key = itr_data.first;
-			value = itr_data.second;
-			BSON_APPEND_UTF8(doc, key.c_str(), value.c_str());
+		key = itr.first;
+		i = 0;
+		BSON_APPEND_ARRAY_BEGIN(doc, key.c_str(), &child);
+		for (auto &itr_child_vec: itr.second)
+		{	
+			keylen = bson_uint32_to_string(i, &key1, buf, sizeof buf);
+			bson_append_document_begin(&child, key1, keylen, &child2);
+			for (auto & itr_child_map : itr_child_vec)
+			{
+				key = itr_child_map.first;
+				value = itr_child_map.second;
+				BSON_APPEND_UTF8(&child2, key.c_str(), value.c_str());
+			}
+			i++;
+			bson_append_document_end(&child, &child2);
 		}
+		bson_append_array_end(doc, &child);
 	}
-	return false;
-	//return dbapi->batch_insert_coll(dbname, collname, &doc, 11);
+
+	return m_mongodb_ptr->insert_coll(dbname, collname, doc);
+}
+
+
+bool DBIOMongoDB::PushNoticeColl(const char* dbname, const char* collname, const std::map<std::string, std::string> id_map, const std::map<std::string, std::map<std::string, std::string>>& map_data)
+{
+	if (map_data.size() < 1) return false;
+
+	std::string key, value;
+	bson_t* doc = bson_new();
+	bson_t* query = bson_new();
+	bson_t child;
+
+	for (auto &itr : id_map)
+	{
+		key = itr.first;
+		value = itr.second;
+		BSON_APPEND_UTF8(query, key.c_str(), value.c_str());
+	}
+	for (auto &itr : map_data)
+	{
+		key = itr.first;
+		BSON_APPEND_DOCUMENT_BEGIN(doc, key.c_str(), &child);
+		for (auto & itr_child_map : itr.second)
+		{
+			key = itr_child_map.first;
+			value = itr_child_map.second;
+			BSON_APPEND_UTF8(&child, key.c_str(), value.c_str());
+		}
+		bson_append_document_end(doc, &child);
+	}
+	bson_t* docs = bson_new();
+	BSON_APPEND_DOCUMENT(docs, "$push", doc);
+
+	return m_mongodb_ptr->update_coll(dbname, collname,query, docs);
+}
+
+bool DBIOMongoDB::DelNoticeColl(const char* dbname, const char* collname, const std::map<std::string, std::string> id_map, std::map<std::string, std::map<std::string, std::string>>& map_data)
+{
+	if (map_data.size() < 1) return false;
+
+	std::string key, value;
+	bson_t* doc = bson_new();
+	bson_t* query = bson_new();
+	bson_t child;
+
+
+	for (auto &itr : id_map)
+	{
+		key = itr.first;
+		value = itr.second;
+		BSON_APPEND_UTF8(query, key.c_str(), value.c_str());
+	}
+	for (auto &itr : map_data)
+	{
+		key = itr.first;
+		BSON_APPEND_DOCUMENT_BEGIN(doc, key.c_str(), &child);
+		for (auto & itr_child_map : itr.second)
+		{
+			key = itr_child_map.first;
+			value = itr_child_map.second;
+			BSON_APPEND_UTF8(&child, key.c_str(), value.c_str());
+		}
+		bson_append_document_end(doc, &child);
+	}
+	bson_t* docs = bson_new();
+	BSON_APPEND_DOCUMENT(docs, "$pull", doc);
+
+	return m_mongodb_ptr->update_coll(dbname, collname, query, docs);
+}
+
+bool DBIOMongoDB::SelectNoticeColl(const char* dbname, const char* collname, const std::map<std::string, std::string> id_map, const std::vector< std::string> field_map, std::vector<std::map<std::string, std::string>>& map_data)
+{
+	bson_t query;
+	bson_t fields;
+	std::string key, value;
+	bson_init(&query);
+	bson_init(&fields);
+
+	for (auto& itr : id_map)
+	{
+		key = itr.first;
+		value = itr.second;
+		BSON_APPEND_UTF8(&query, key.c_str(), value.c_str());
+	}
+	for (auto& itr : field_map)
+	{
+		key = itr;
+		BSON_APPEND_UTF8(&fields, key.c_str(), "1");
+	}
+
+	return m_mongodb_ptr->select_coll_by_fields(dbname, collname,&query, &fields, map_data);
 }
