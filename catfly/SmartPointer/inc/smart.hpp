@@ -48,6 +48,16 @@ public:
 		else 
 		cout << "还有" << rp->count_ << "个指针指向基础对象" << endl;
 	}
+
+    Point& operator * () //重载*操作符  
+    {
+        return *(rp->p);
+    }
+    Point* operator -> () //重载->操作符  
+    {
+        return rp->p;
+    }
+
 	
 private:
         U_Ptr *rp;  

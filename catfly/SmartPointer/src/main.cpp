@@ -10,6 +10,7 @@ int main()
 
 	{
 		SmartPtr sptr1(pa);//此时计数count=1
+	    cout << pa->getX ()<< endl;
 		{
 			SmartPtr sptr2(sptr1); //调用复制构造函数，此时计数为count=2
 			{
