@@ -1,0 +1,12 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+PROJECT(CatFly)
+SET(PROJECT_OUTNAME CatFly)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+#add_subdirectory(server)
+#add_subdirectory(client)
+add_subdirectory(SmartPointer)
+
+MESSAGE(STATUS "${PROJECT_OUTNAME} is BINARY dir:" ${PROJECT_BINARY_DIR})
+MESSAGE(STATUS "${PROJECT_OUTNAME} is SOURCE dir:" ${PROJECT_SOURCE_DIR})
+
