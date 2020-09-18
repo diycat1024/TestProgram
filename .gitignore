@@ -61,3 +61,5 @@ build/
 build2019
 
 
+*.lib
+lib/
