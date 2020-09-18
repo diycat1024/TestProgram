@@ -15,6 +15,12 @@
 
 [catfly/SmartPointer]() 实现智能指针
 
+libevent_test/timer libevent 定时器
+
+libevent_test/server    libevent服务器例子
+    
+libevent_test/client libevent 客户客户端例子
+
 
 ## 包管理
 统一使用vcpkg包管理。

@@ -1,7 +1,7 @@
 #ifdef WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#pragma comment(lib,"ws2_32.lib") 
+#pragma comment(lib,"ws2_32.lib")
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #undef WIN32_LEAN_AND_MEAN
@@ -21,10 +21,10 @@ void time_cb(evutil_socket_t fd, short event, void *argc)
 
 int main()
 {
-#ifdef WIN32 
-	WSADATA wsa_data; 
+#ifdef WIN32
+	WSADATA wsa_data;
 	WSAStartup(0x0201, &wsa_data);
-#endif 
+#endif
 	struct event_base *base = event_base_new();
 	tv.tv_sec = 2;
 	tv.tv_usec = 0;
@@ -35,8 +35,8 @@ int main()
 	event_base_dispatch(base);
 
 	event_base_free(base);
-#ifdef WIN32 
+#ifdef WIN32
 	WSACleanup();
-#endif 
+#endif
 	return 1;
 }
