@@ -38,9 +38,23 @@ IF(WIN32)
 		)
 
 	#SET(CMAKE_EXE_LINKER_FLAGS /NODEFAULTLIB:"LIBCMT.lib")
+ELSEIF(APPLE)
+	SET(PROJECT_LIBS_PLATFORM_DEBUG
+			${PROJECT_LIB_PATH}/libevent.a
+			${PROJECT_LIB_PATH}/libevent_core.a
+			${PROJECT_LIB_PATH}/libevent_extra.a
+			${PROJECT_LIB_PATH}/libcrypto.a
+			${PROJECT_LIB_PATH}/libssl.a
+			)
+	SET(PROJECT_LIBS_PLATFORM_RELEASE
+			${PROJECT_LIB_PATH}/libevent.a
+			${PROJECT_LIB_PATH}/libevent_core.a
+			${PROJECT_LIB_PATH}/libevent_extra.a
+			${PROJECT_LIB_PATH}/libcrypto.a
+			${PROJECT_LIB_PATH}/libssl.a
+			)
 ENDIF()
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-add_definitions(-D_WIN32)
 add_definitions(-DUNICODE)
 SET(PROJECT_SOURCES main.cpp)
 

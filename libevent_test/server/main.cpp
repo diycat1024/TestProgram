@@ -1,7 +1,10 @@
 #include <signal.h>
 #include <string.h>
+#include <errno.h>
 #include "libevent/event.h"
 #include "libevent/event2/listener.h"
+#ifdef MACOS
+#endif
 
 #define PORT 8881
 static const char MESSAGE[] = "Hello world!";
@@ -22,14 +25,19 @@ void conn_readcb(struct bufferevent *bev, void *ctx)
 	memset(read_msg, 0, sizeof(read_msg));
 	
 	struct evbuffer* input = bufferevent_get_input(bev);
+
 	size_t sz = evbuffer_get_length(input);
+	printf("sz = %d\n", sz);
 	if (sz > 0)
 	{
 		bufferevent_read(bev, read_msg, sz);
 		printf("str: %s\n", read_msg);
 
-		bufferevent_write(bev, read_msg, strlen(read_msg));
 	}
+    struct evbuffer* output = bufferevent_get_output(bev);
+    evbuffer_add_buffer(output, input);
+    return;
+
 }
 
 void conn_eventcb(struct bufferevent *bev, short events, void *ctx)
@@ -42,27 +50,24 @@ void conn_eventcb(struct bufferevent *bev, short events, void *ctx)
 	{
 		printf("Got an error on the connection: %s\n", strerror(errno));
 	}
-
+	printf("a new conn \n");
 	bufferevent_free(bev);
 }
 
 void listen_cb(struct evconnlistener * listener, evutil_socket_t fd, struct sockaddr * sa, int socklen, void * user_data)
 {
-	struct event_base * base = (event_base*)user_data;
-	struct bufferevent* bev;
-
-	bev = bufferevent_socket_new(base, fd, BEV_OPT_CLOSE_ON_FREE);
+	struct event_base * base = evconnlistener_get_base(listener);
+	struct bufferevent* bev = bufferevent_socket_new(base, fd, BEV_OPT_CLOSE_ON_FREE);
 	if (!bev)
 	{
 		fprintf(stderr, "Error construct bufferevent\n");
 		return;
 	}
 	
-	bufferevent_setcb(bev, conn_readcb, conn_writecb, conn_eventcb, nullptr);
-	bufferevent_enable(bev, EV_WRITE | EV_READ);
-	//bufferevent_disable(bev, EV_READ);
+	bufferevent_setcb(bev, conn_readcb, nullptr, conn_eventcb, nullptr);
+    bufferevent_enable(bev, EV_READ | EV_WRITE);
 
-	bufferevent_write(bev, MESSAGE, strlen(MESSAGE));
+	//bufferevent_write(bev, MESSAGE, strlen(MESSAGE));
 }
 
 void signal_cb(evutil_socket_t, short, void * user_data)
@@ -91,7 +96,7 @@ int main()
 	struct sockaddr_in addr_in;
 	memset(&addr_in, 0, sizeof addr_in);
 	addr_in.sin_family = AF_INET;
-	addr_in.sin_port = htons(8881);
+	addr_in.sin_port = htons(PORT);
 
 	listen = evconnlistener_new_bind(base,listen_cb,(void*)base, LEV_OPT_REUSEABLE|LEV_OPT_CLOSE_ON_FREE, -1, (struct sockaddr*)&addr_in,sizeof(addr_in) );
 
@@ -111,6 +116,7 @@ int main()
 	printf("Accept...\n");
 	event_base_dispatch(base);
 
+    printf("server done...\n");
 	evconnlistener_free(listen);
 	event_free(signal_event);
 	event_base_free(base);

@@ -1,7 +1,11 @@
-#include <signal.h>
 #include <string.h>
+#ifdef MACOS
+#include <arpa/inet.h>
+#include <zconf.h>
+#include <sys/select.h>
+#endif
+#include "event2/util.h"
 #include "libevent/event.h"
-#include "libevent/event2/listener.h"
 
 #define PORT 8881
 static const char MESSAGE[] = "Hello world!";
@@ -28,7 +32,7 @@ void conn_readcb(struct bufferevent *bev, void *ctx)
 		bufferevent_read(bev, read_msg, sz);
 		printf("str: %s\n", read_msg);
 
-		bufferevent_write(bev, read_msg, strlen(read_msg));
+		bufferevent_write(bev, &read_msg, strlen(read_msg));
 	}
 }
 
@@ -43,6 +47,8 @@ void conn_eventcb(struct bufferevent *bev, short events, void *ctx)
 	{
 		printf("Got an error on the connection: %s\n", strerror(errno));
 	}
+	printf("conn_eventcb\n");
+    bufferevent_write(bev, MESSAGE, strlen(MESSAGE));
 
 	bufferevent_free(bev);
 }
@@ -59,7 +65,7 @@ int main()
 	struct sockaddr_in addr_in;
 	memset(&addr_in, 0, sizeof addr_in);
 	addr_in.sin_family = AF_INET;
-	addr_in.sin_port = htons(8881);
+	addr_in.sin_port = htons(PORT);
 	addr_in.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	struct bufferevent* bev = bufferevent_socket_new(base, -1, BEV_OPT_CLOSE_ON_FREE);
@@ -78,8 +84,9 @@ int main()
 	}
 	bufferevent_enable(bev, EV_READ | EV_WRITE);
 
-	event_base_dispatch(base);
-	event_base_free(base);
+    sleep(1);
+    event_base_dispatch(base);
+    event_base_free(base);
 
 #ifdef WIN32
 	WSACleanup();
