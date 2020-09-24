@@ -3,9 +3,12 @@ PROJECT(Client)
 SET(PROJECT_OUT Client)
 
 SET(CMAKE_INCLUDE_CURRENT_DIR ON)
-
+SET(CMAKE_BUILD_TYPE "Debug")
+SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
+SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
 
 INCLUDE_DIRECTORIES(
+./inc
 ../../inc
 ../../inc/libevent)
 
@@ -40,6 +43,21 @@ IF(WIN32)
 	#SET(CMAKE_EXE_LINKER_FLAGS /NODEFAULTLIB:"LIBCMT.lib")
 	add_definitions(-D_WINSOCK_DEPRECATED_NO_WARNINGS)
 	add_definitions(-D_WIN32)
+ELSEIF(UNIX)
+	SET(PROJECT_LIBS_PLATFORM_DEBUG
+			${PROJECT_LIB_PATH}/libevent.a
+			${PROJECT_LIB_PATH}/libevent_core.a
+			${PROJECT_LIB_PATH}/libevent_extra.a
+            #		${PROJECT_LIB_PATH}/libcrypto.a
+            #${PROJECT_LIB_PATH}/libssl.a
+			)
+	SET(PROJECT_LIBS_PLATFORM_RELEASE
+			${PROJECT_LIB_PATH}/libevent.a
+			${PROJECT_LIB_PATH}/libevent_core.a
+			${PROJECT_LIB_PATH}/libevent_extra.a
+            #${PROJECT_LIB_PATH}/libcrypto.a
+            #${PROJECT_LIB_PATH}/libssl.a
+			)
 ELSEIF(APPLE)
 	SET(PROJECT_LIBS_PLATFORM_DEBUG
 			${PROJECT_LIB_PATH}/libevent.a
@@ -58,7 +76,11 @@ ELSEIF(APPLE)
 ENDIF()
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 add_definitions(-DUNICODE)
-SET(PROJECT_SOURCES main.cpp)
+
+SET(PROJECT_SOURCES 
+    src/main.cpp
+    src/TcpConnection.cpp
+    )
 
 ADD_EXECUTABLE(${PROJECT_OUT} ${PROJECT_SOURCES})
 TARGET_LINK_LIBRARIES(${PROJECT_OUT} ${PROJECT_LIBS_PLATFORM_RELEASE} ${PROJECT_LIBS_PLATFORM_DEBUG} )

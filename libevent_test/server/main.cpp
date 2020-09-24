@@ -1,12 +1,15 @@
 #include <signal.h>
 #include <string.h>
 #include <errno.h>
+#include <vector>
+
 #include "libevent/event.h"
 #include "libevent/event2/listener.h"
 #ifdef MACOS
 #endif
 
 #define PORT 8881
+#define MAX_BUFFER 48000
 static const char MESSAGE[] = "Hello world!";
 
 void conn_writecb(struct bufferevent *bev, void *ctx)
@@ -21,21 +24,23 @@ void conn_writecb(struct bufferevent *bev, void *ctx)
 
 void conn_readcb(struct bufferevent *bev, void *ctx)
 {
-	char read_msg[256] = { 0 };
-	memset(read_msg, 0, sizeof(read_msg));
-	
 	struct evbuffer* input = bufferevent_get_input(bev);
 
 	size_t sz = evbuffer_get_length(input);
 	printf("sz = %d\n", sz);
-	if (sz > 0)
-	{
-		bufferevent_read(bev, read_msg, sz);
-		printf("str: %s\n", read_msg);
 
-	}
-    struct evbuffer* output = bufferevent_get_output(bev);
-    evbuffer_add_buffer(output, input);
+    std::vector<char> read;
+    read.resize(MAX_BUFFER);
+    if (sz > 0)
+    {
+        bufferevent_read(bev, &read.front(), sz);
+    }
+
+
+	printf("str: %s\n", (const char*)&read.front());
+        
+    //struct evbuffer* output = bufferevent_get_output(bev);
+    //evbuffer_add_buffer(output, input);
     return;
 
 }
@@ -50,7 +55,10 @@ void conn_eventcb(struct bufferevent *bev, short events, void *ctx)
 	{
 		printf("Got an error on the connection: %s\n", strerror(errno));
 	}
-	printf("a new conn \n");
+    else
+    {
+	  printf("a new conn \n");
+    }
 	bufferevent_free(bev);
 }
 
