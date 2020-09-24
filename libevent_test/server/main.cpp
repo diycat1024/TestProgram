@@ -1,16 +1,26 @@
-#include <signal.h>
+
 #include <string.h>
-#include <errno.h>
+#include <signal.h>
+#ifndef WIN32
+#include <arpa/inet.h>
+#include <zconf.h>
+#include <sys/select.h>
+#endif
+#include <memory>
+#include <thread>
+#include <mutex>
 #include <vector>
 
+#include "event2/util.h"
+#include "libevent/event.h"
+#include "libevent/event2/listener.h"
+#include "event2/util.h"
 #include "libevent/event.h"
 #include "libevent/event2/listener.h"
 #ifdef MACOS
 #endif
-
 #define PORT 8881
 #define MAX_BUFFER 48000
-static const char MESSAGE[] = "Hello world!";
 
 void conn_writecb(struct bufferevent *bev, void *ctx)
 {
@@ -62,7 +72,8 @@ void conn_eventcb(struct bufferevent *bev, short events, void *ctx)
 	bufferevent_free(bev);
 }
 
-void listen_cb(struct evconnlistener * listener, evutil_socket_t fd, struct sockaddr * sa, int socklen, void * user_data)
+
+void Tcplisten_cb(struct evconnlistener * listener, evutil_socket_t fd, struct sockaddr * sa, int socklen, void * user_data)
 {
 	struct event_base * base = evconnlistener_get_base(listener);
 	struct bufferevent* bev = bufferevent_socket_new(base, fd, BEV_OPT_CLOSE_ON_FREE);
@@ -77,7 +88,6 @@ void listen_cb(struct evconnlistener * listener, evutil_socket_t fd, struct sock
 
 	//bufferevent_write(bev, MESSAGE, strlen(MESSAGE));
 }
-
 void signal_cb(evutil_socket_t, short, void * user_data)
 {
 	struct event_base* base = static_cast<event_base*>(user_data);
