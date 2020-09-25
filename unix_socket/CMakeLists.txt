@@ -1,0 +1,15 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+PROJECT(UNIX)
+SET(PROJECT_OUTNAME UNIX)
+
+IF(WIN32)
+    add_definitions(-DWIN32)
+ELSEIF(UNIX)
+    add_definitions(-DUNIX)
+ELSEIF(APPLE)
+    add_definitions(-DMACOS)
+ENDIF()
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+add_subdirectory(server)
+add_subdirectory(client)
+
