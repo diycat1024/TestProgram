@@ -30,7 +30,9 @@ acl是手动编译的：
 
  
 ## TODO LIST
-- [ ] 实现智能指针
+- [x] 实现智能指针
+- [x] UNIX AF_UNIX通信server/client
+- [x] libecent网络库的简单使用
 - [ ]  win网络传输库
 - [ ] linux网络传输库
 - [ ] 跨平台的网络传输库
