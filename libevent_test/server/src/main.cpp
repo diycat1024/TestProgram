@@ -9,8 +9,8 @@
 int main() 
 {
 #ifdef WIN32
-	WSADATA wsa_data;
-	WSAStartup(0x0201, &wsa_data);
+    WSADATA wsa_data;
+    WSAStartup(0x0201, &wsa_data);
 #endif
 
     TcpConnection conn;
@@ -19,9 +19,9 @@ int main()
 
     printf("server done...\n");
 #ifdef WIN32
-	WSACleanup();
+    WSACleanup();
 #endif
 
-	printf("done\n");
-	return 1;
+    printf("done\n");
+    return 1;
 }

@@ -38,8 +38,8 @@ private:
     std::mutex mutex_;
 
     struct event_base* base_;
-	struct evconnlistener* listen_;
-	struct event* signal_event_;
+    struct evconnlistener* listen_;
+    struct event* signal_event_;
 
     struct bufferevent* bev_;
 };

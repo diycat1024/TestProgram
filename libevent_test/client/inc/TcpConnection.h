@@ -5,6 +5,7 @@
 #include <zconf.h>
 #include <sys/select.h>
 #endif
+#include <vector>
 #include <memory>
 #include <thread>
 #include <mutex>
@@ -27,11 +28,15 @@ public:
 
     int32_t init();
     void    start();
+    bool sendMsg(std::string msg);
 private:
     std::shared_ptr<std::thread> thread_;
     std::mutex mutex_;
 
     struct event_base* base_;
     struct bufferevent* bev_;
+
+    std::vector<char> msg_buffer_;
 };
 
+typedef std::shared_ptr<TcpConnection> TcpConnPtr;

@@ -1,5 +1,6 @@
 #include <string.h>
-#ifdef MACOS
+#include <unistd.h>
+#ifdef MACOS || UNIX
 #include <arpa/inet.h>
 #include <zconf.h>
 #include <sys/select.h>

@@ -50,6 +50,8 @@ ELSEIF(UNIX)
 			${PROJECT_LIB_PATH}/libevent_extra.a
             #		${PROJECT_LIB_PATH}/libcrypto.a
             #${PROJECT_LIB_PATH}/libssl.a
+
+            pthread
 			)
 	SET(PROJECT_LIBS_PLATFORM_RELEASE
 			${PROJECT_LIB_PATH}/libevent.a
@@ -57,6 +59,8 @@ ELSEIF(UNIX)
 			${PROJECT_LIB_PATH}/libevent_extra.a
             #${PROJECT_LIB_PATH}/libcrypto.a
             #${PROJECT_LIB_PATH}/libssl.a
+
+            pthread
 			)
 ELSEIF(APPLE)
 	SET(PROJECT_LIBS_PLATFORM_DEBUG
