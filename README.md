@@ -22,6 +22,7 @@ libevent_test/server    libevent服务器例子
 libevent_test/client libevent 客户客户端例子
 
 
+
 ## 包管理
 统一使用vcpkg包管理。
 
@@ -37,3 +38,5 @@ acl是手动编译的：
 - [ ] linux网络传输库
 - [ ] 跨平台的网络传输库
  
+libevent_test/server 单聊/群聊/发送文件/代理
+libevent_test/client 单聊/群聊/发送文件/代理
