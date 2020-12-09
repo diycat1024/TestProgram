@@ -7,8 +7,12 @@
 
 #include <errno.h>
 #include <string.h>
+#include <thread>
+#include <mutex>
+#include <chrono>
 
-int main(int argc, char const *argv[])
+struct sockaddr_in addr;
+void client()
 {
     int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_fd == -1)
@@ -16,10 +20,6 @@ int main(int argc, char const *argv[])
         fprintf(stderr, "socket error %s!!!\n", strerror(errno));
         exit(1);
     }
-    struct sockaddr_in addr;
-    addr.sin_port = htons(8883);
-    addr.sin_addr.s_addr = inet_addr("192.168.6.143");
-    addr.sin_family = AF_INET;
 
     int ret = connect(sock_fd,(struct sockaddr*)&addr,sizeof(struct sockaddr));
     if (ret == -1)
@@ -34,5 +34,30 @@ int main(int argc, char const *argv[])
     send(sock_fd, buff, strlen(buff),0);
     recv(sock_fd,buff,sizeof(buff), 0);
     printf("recv msg %s\n", buff);
+}
+
+int main(int argc, char const *argv[])
+{
+    addr.sin_port = htons(8883);
+    addr.sin_addr.s_addr = inet_addr("192.168.6.143");
+    addr.sin_family = AF_INET;
+
+    std::thread t([&]{
+        for(int i=0; i< 100; i ++)
+        {
+            client();
+        }
+    });
+    t.join();
+
+    std::thread t2([&]{
+        for(int i=0; i< 100; i ++)
+        {
+            client();
+        }
+    });
+    t2.join();
+
+    std::this_thread::sleep_for(std::chrono::seconds(10000));
     return 0;
 }

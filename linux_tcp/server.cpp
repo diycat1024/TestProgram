@@ -5,14 +5,32 @@
 #include<arpa/inet.h>  
 #include<string.h>  
 #include<unistd.h>  
+#include <csignal>
+#include <iostream>
+
+static volatile int keep_running = 1;
+
 #define BACKLOG 5     //完成三次握手但没有accept的队列的长度  
-#define CONCURRENT_MAX 8   //应用层同时可以处理的连接  
+#define CONCURRENT_MAX 10000   //应用层同时可以处理的连接  
 #define SERVER_PORT 8883  
 #define BUFFER_SIZE 1024  
 #define QUIT_CMD ".quit"  
 int client_fds[CONCURRENT_MAX];  
+
+void sig_handle(int sig)
+{
+    if (sig == SIGINT)
+    {
+        keep_running = 0;
+    }
+}
+
+
 int main(int argc, const char * argv[])  
 {  
+    //注册信号
+    signal(SIGINT, sig_handle);
+
     char input_msg[BUFFER_SIZE];  
     char recv_msg[BUFFER_SIZE];  
     //本地地址  
@@ -46,11 +64,11 @@ int main(int argc, const char * argv[])
     fd_set server_fd_set;  
     int max_fd = -1;  
     struct timeval tv;  //超时时间设置  
-    while(1)  
+    while(keep_running)  
     {  
         tv.tv_sec = 20;  
         tv.tv_usec = 0;  
-        FD_ZERO(&server_fd_set);  
+        FD_ZERO(&server_fd_set);
         FD_SET(STDIN_FILENO, &server_fd_set);  
         if(max_fd <STDIN_FILENO)  
         {  
@@ -75,7 +93,7 @@ int main(int argc, const char * argv[])
                 {  
                     max_fd = client_fds[i];  
                 }  
-            }  
+            }
         }  
         int ret = select(max_fd + 1, &server_fd_set, NULL, NULL, &tv);  
         if(ret < 0)  
@@ -175,6 +193,18 @@ int main(int argc, const char * argv[])
                 }  
             }  
         }  
-    }  
+    } 
+    for(int i =0; i < CONCURRENT_MAX; i++)  
+    {
+        if (client_fds[i]!=0)
+        {
+            close(client_fds[i]);
+        }
+    }
+    close(server_sock_fd);
+    std::cout << "Terminated by Ctrl+C signal." << std::endl;
+
+    std::cout << "Finishes data saving or some other work, and then exits.";
+    
     return 0;  
 } 
