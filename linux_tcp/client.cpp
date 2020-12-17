@@ -32,8 +32,12 @@ void client()
     sprintf(buff, "%s", "helloworld\n");
     printf("send msg %s\n", buff);
     send(sock_fd, buff, strlen(buff),0);
-    recv(sock_fd,buff,sizeof(buff), 0);
-    printf("recv msg %s\n", buff);
+    while(true)
+    {
+        memset(buff,0,1024);
+        recv(sock_fd,buff,sizeof(buff), 0);
+        printf("recv msg %s\n", buff);
+    }
 }
 
 int main(int argc, char const *argv[])
