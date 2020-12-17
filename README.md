@@ -21,6 +21,9 @@ libevent_test/server    libevent服务器例子
     
 libevent_test/client libevent 客户客户端例子
 
+unix_socket/unix_tcp  linux下的unxi通信
+
+unix_socket/linux_tcp linux下的tcp通信
 
 
 ## 包管理

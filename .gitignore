@@ -63,3 +63,5 @@ build2019
 
 *.lib
 lib/
+
+bin

@@ -41,22 +41,21 @@ int main(int argc, char const *argv[])
     addr.sin_port = htons(8883);
     addr.sin_addr.s_addr = inet_addr("192.168.6.143");
     addr.sin_family = AF_INET;
-
+    if (argc < 2)
+    {
+        printf("cmd len must >= 2. %d\n", argc);
+        return -1;
+    }
+    const char* lne = argv[1];
+    printf("开启client %d个\n", atoi(lne));
     std::thread t([&]{
-        for(int i=0; i< 100; i ++)
+        for(int i=0; i< atoi(lne); i ++)
         {
             client();
         }
     });
     t.join();
 
-    std::thread t2([&]{
-        for(int i=0; i< 100; i ++)
-        {
-            client();
-        }
-    });
-    t2.join();
 
     std::this_thread::sleep_for(std::chrono::seconds(10000));
     return 0;
