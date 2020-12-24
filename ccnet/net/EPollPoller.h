@@ -6,20 +6,24 @@
 #include <sys/epoll.h>
 #include <fcntl.h>
 #include <vector>
+#include <memory>
+#include <map>
+#include "EventLoop.h"
 
-#include "Channel.h"
-
+typedef std::map<int,Channel*> ChannleMap;
 class EPollPoller
 {
 public:
-    EPollPoller(/* args */);
+    EPollPoller(EventLoop *loop);
     ~EPollPoller();
 
-    int init(int port);
-    void addfd(int epollfd, bool enable_et);
-    void  poll();
+    void  poll(ChannelList* active_channels);
+
+    void  update(int operation, Channel *channel);
+    void  updateChannel(Channel* channel);
+    void  removeChannel(Channel* channel);
 private:
-    /* data */
+    EventLoop *loop_;
     int sock_fd_;
     int epfd_;
     std::vector<struct epoll_event> events_;
