@@ -12,14 +12,14 @@ public:
     explicit Buffer(ssize_t initialsize = kInitialSize);
     ~Buffer();
     
-    size_t      writableBytes();
-    size_t      readableBytes();
+    ssize_t      writableBytes();
+    ssize_t      readableBytes();
     const char* peek();
     void        retrieve(ssize_t len);
     void        retrieveAll();
 
     char*       begin();
-
+    char*       beginWrite();
     //recv
     ssize_t     readFd(int fd , int* savedErr); 
 
@@ -27,10 +27,10 @@ public:
     ssize_t     append(const char* data, ssize_t len);
 
     //space
-    // void        makeSpace();
+    void        makeSpace(ssize_t len);
 
 private:
     std::vector<char> buffer_;
-    size_t write_index_;
-    size_t read_index_;
+    ssize_t write_index_;
+    ssize_t read_index_;
 };

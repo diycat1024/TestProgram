@@ -26,13 +26,15 @@ typedef std::function<void ()> ReadCallBack;
     int  isNoEvent() const { return events_ == 0;};
     int  events()    const {return events_;}
     void setEvents(uint32_t event) { revents_ = event;}
-    void disableAll() { events_ = 0; update(); }
-    bool isWriting() const;
-    bool isReading() const;
 
     void enableConnecting();
     void enableReading();
+    void disableReading();
     void enableWriting();
+    void disableWriting();
+    void disableAll() { events_ = 0; update(); }
+    bool isWriting() const;
+    bool isReading() const;
 
     void handleEvent();
 private:

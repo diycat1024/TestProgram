@@ -12,6 +12,8 @@ accept_socket_(new Socket(addr))
 
 Acceptor::~Acceptor()
 {
+    accept_channel_->disableAll();
+    accept_channel_->remove();
 }
 
 void Acceptor::listen()

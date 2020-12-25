@@ -41,13 +41,28 @@ void Channel::enableConnecting()
 
 void Channel::enableReading()
 {
-    events_ |= EPOLLIN | EPOLLPRI;
+    events_ |= (EPOLLIN | EPOLLPRI);
+    update();
+}
+
+void Channel::disableReading()
+{
+    //todo why
+    events_ &= ~(EPOLLIN | EPOLLPRI);
     update();
 }
 
 void Channel::enableWriting()
 {
+    printf("Channel, enableWriting\n");
     events_ |= EPOLLOUT;
+    update();
+}
+
+void Channel::disableWriting()
+{
+    //todo why
+    events_ &= ~EPOLLOUT;
     update();
 }
 
@@ -56,6 +71,7 @@ void Channel::handleEvent()
 {
     if ((revents_ & EPOLLHUP) && !(revents_ & EPOLLIN))
     {
+        printf("handleEvent close: %d\n",fd_);
         if (close_callback_) close_callback_();
     }
     if (revents_ & ( EPOLLIN | EPOLLPRI | EPOLLRDHUP)) 
@@ -69,6 +85,7 @@ void Channel::handleEvent()
     }
     if (revents_ & (EPOLLERR))
     {
+        printf("handleEvent error: %d\n", fd_);
         if (error_callback_) error_callback_();
     }
 

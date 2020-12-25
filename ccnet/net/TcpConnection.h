@@ -60,7 +60,7 @@ private:
     Buffer input_buffer_;
     Buffer output_buffer_; // FIXME: use list<Buffer> as output buffer.
     //channel
-   std::unique_ptr<Channel> channel_;
+    std::unique_ptr<Channel> channel_;
     //callback
     ConnectionCallback connect_callback_;
     MessageCallback message_callback_;

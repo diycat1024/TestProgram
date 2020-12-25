@@ -7,6 +7,7 @@ Socket::Socket(const TcpAddr& addr):addr_(addr)
 
 Socket::~Socket()
 {
+    ::close(fd_);
 }
 
 int Socket::createSocket()
@@ -17,14 +18,14 @@ int Socket::createSocket()
         perror("sock error\n"); 
         return -1;
     }
-    printf("create fd: %d111111111111111111111\n", fd_);
+    printf("create fd: %d\n", fd_);
     return 0;
 }
 
 int Socket::bind()
 {
     const struct sockaddr* ad = addr_.getSockAddr();
-    if ( ::bind(fd_, ad, sizeof(struct sockaddr)) <= 0)
+    if ( ::bind(fd_, ad, sizeof(struct sockaddr)) == -1)
     {
         perror("bind error");
         return -1;
@@ -34,7 +35,7 @@ int Socket::bind()
 
 int Socket::listen()
 {
-    if (::listen(fd_, 5) <= 0)
+    if (::listen(fd_, 5) == -1)
     {
         perror("listen error");
         return -1;

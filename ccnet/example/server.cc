@@ -5,7 +5,7 @@ int main()
 {
     EventLoop loop;
     TcpAddr addr(8883);
-    TcpServer server(&loop,addr, "reearae");
+    EchoServer server(&loop,addr);
     server.start();
 
     loop.loop();

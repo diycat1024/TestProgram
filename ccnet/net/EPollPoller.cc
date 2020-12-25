@@ -1,33 +1,39 @@
 #include <string.h>
 #include "EPollPoller.h"
 #include "Channel.h"
+#include <unistd.h>
 
 EPollPoller::EPollPoller(EventLoop* loop)
 : epfd_(::epoll_create1(EPOLL_CLOEXEC)),
-loop_(loop)
+loop_(loop),
+events_(16)
 {
 }
 
 EPollPoller::~EPollPoller()
 {
+    ::close(epfd_);
 }
 
 
 void EPollPoller::poll(ChannelList* active_channels)
 {
-    int epoll_events_count = ::epoll_wait(epfd_, &*events_.begin(), static_cast<int>(events_.size()), -1);
-    if (epoll_events_count <= 0)
+    int epoll_events_counts = ::epoll_wait(epfd_, &*events_.begin(), static_cast<int>(events_.size()), -1);
+    if (epoll_events_counts <= 0)
     {
-        // perror("epoll_events_count <=0");
+        perror("epoll_events_count <=0");
         return;
     }
-    printf("epoll_event_counts: %d\n", epoll_events_count);
-    for (int i=0; i < epoll_events_count; i ++)
+    for (int i=0; i < epoll_events_counts; i ++)
     {
         Channel* channel = static_cast<Channel*>(events_[i].data.ptr);
         
         channel->setEvents(events_[i].events);
         active_channels->push_back(channel);
+    }
+    if  (epoll_events_counts == static_cast<int>(events_.size()))
+    {
+        events_.resize(events_.size()*2);
     }
 }
 
@@ -40,15 +46,15 @@ void  EPollPoller::update(int operation, Channel *channel)
     ev.events = channel->events();
     int fd = channel->fd();
     if (::epoll_ctl(epfd_, operation, fd, &ev) < 0)
-  {
-      //todo logs
-    if (operation == EPOLL_CTL_DEL)
     {
+        //todo logs
+        if (operation == EPOLL_CTL_DEL)
+        {
+        }
+        else
+        {
+        }
     }
-    else
-    {
-    }
-  }
     // fcntl(sock_fd_, F_SETFL, fcntl(sock_fd_, F_GETFD, 0)| O_NONBLOCK);
 }
 

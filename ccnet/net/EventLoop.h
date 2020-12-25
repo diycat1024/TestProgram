@@ -20,6 +20,8 @@ public:
     void  runInLoop(Functor cb);
     void  updateChannel(Channel* channel);
     void  removeChannel(Channel* channel);
+
+public:
 private:
     bool quit_;
     bool looping_;

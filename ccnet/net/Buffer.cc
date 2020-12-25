@@ -1,10 +1,11 @@
 #include <sys/socket.h>
 #include <errno.h>
+#include <stdio.h>
 
 #include "Buffer.h"
 
 Buffer::Buffer(ssize_t initialsize)
-:buffer_(kInitialHeadSize + kInitialSize),
+:buffer_(kInitialHeadSize + initialsize),
 write_index_(kInitialHeadSize),
 read_index_(kInitialHeadSize)
 {
@@ -14,12 +15,12 @@ Buffer::~Buffer()
 {
 }
 
-size_t Buffer::readableBytes()
+ssize_t Buffer::readableBytes()
 {
     return write_index_ - read_index_;
 }
 
-size_t Buffer::writableBytes()
+ssize_t Buffer::writableBytes()
 {
     return buffer_.size() - write_index_;
 }
@@ -52,26 +53,31 @@ char* Buffer::begin()
     return &*buffer_.begin();
 }
 
+char* Buffer::beginWrite()
+{
+    return begin() + write_index_;
+}
 ssize_t Buffer::readFd(int fd , int* savedErr)
 {
-    ssize_t n =0;
+    ssize_t n = 0;
     while (true)
     {
-        size_t writeable =  writableBytes();
-        n = ::recv(fd, begin()+write_index_,writeable,0);
-        if (n <0)
+        ssize_t writeable =  writableBytes();
+        ssize_t l = ::recv(fd, begin()+write_index_,writeable, MSG_DONTWAIT);
+        if (l <= 0)
         {
             *savedErr = errno;
             break;
         }
-        if (n <= writeable)
+        if (l <= writeable)
         {
-            write_index_ += n;
+            write_index_ += l;
         }
         else
         {
             write_index_ = buffer_.size();
         }
+        n += l;
     }
     return n;
 }
@@ -79,6 +85,24 @@ ssize_t Buffer::readFd(int fd , int* savedErr)
 ssize_t Buffer::append(const char* data, ssize_t len)
 {
     //todo makespace
-    std::copy(data, data+len, begin() + write_index_);
+    makeSpace(len);
+    std::copy(data, data+len, beginWrite());
     write_index_ += len;
+    printf("append: data: %s, %d\n",data,len);
+    printf("append: output_buffer_: %s, %d\n", peek(),readableBytes());
+
+}
+
+
+void Buffer::makeSpace(ssize_t len)
+{
+    if (len > writableBytes())
+    {
+        buffer_.resize(write_index_ + len);
+    }
+    else
+    {
+        //todo
+    }
+    
 }

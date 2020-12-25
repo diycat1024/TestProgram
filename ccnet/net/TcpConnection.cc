@@ -14,13 +14,14 @@ fd_(sockfd),
 channel_(new Channel(loop,sockfd))
 {
     channel_->setReadCallback(std::bind(&TcpConnection::handleRead, this));
-    channel_->setReadCallback(std::bind(&TcpConnection::handleWrite, this));
-    channel_->setReadCallback(std::bind(&TcpConnection::handleError, this));
-    channel_->setReadCallback(std::bind(&TcpConnection::handleClose, this));
+    channel_->setWriteCallback(std::bind(&TcpConnection::handleWrite, this));
+    channel_->setErrorCallback(std::bind(&TcpConnection::handleError, this));
+    channel_->setCloseCallback(std::bind(&TcpConnection::handleClose, this));
 }
 
 TcpConnection::~TcpConnection()
 {
+ 
 }
 
 void TcpConnection::connectEstablished()
@@ -55,6 +56,7 @@ void TcpConnection::sendInLoop(const char* data, int len)
   if (conn_state_ == kConnected)
   {
     output_buffer_.append(static_cast<const char*>(data), len);
+    printf("sendInLoop: data %s, %d\n",data,len);
     if (!channel_->isWriting())
     {
       channel_->enableWriting();
@@ -83,6 +85,7 @@ void TcpConnection::handleRead()
 {
   int save_err;
   ssize_t n = input_buffer_.readFd(channel_->fd(),  &save_err);
+  printf("recv len: %d\n", n);
   if (n > 0)
   {
     message_callback_(shared_from_this(), &input_buffer_);
@@ -93,22 +96,27 @@ void TcpConnection::handleRead()
   }
   else
   {
-    errno =   save_err;
+    errno = save_err;
     handleError();
   }
 }
 
 void TcpConnection::handleWrite()
 {
-  size_t n = ::send(channel_->fd(), output_buffer_.peek(), output_buffer_.readableBytes(), 0);
-  if (n > 0)
+  if (channel_->isWriting())
   {
-    output_buffer_.retrieve(n);
-    if (output_buffer_.readableBytes() == 0)
+    ssize_t n = ::send(channel_->fd(), output_buffer_.peek(), output_buffer_.readableBytes(), 0);
+    // printf("send: %s, %d\n", output_buffer_.peek(),output_buffer_.readableBytes());
+    if (n > 0)
     {
-      //todo  缓冲区没有数据可以写入了。
-    }
+      printf("tcp handleWrite:%d\n", n);
+      output_buffer_.retrieve(n);
+      if (output_buffer_.readableBytes() == 0)
+      {
+        //todo  缓冲区没有数据可以写入了。
+      }
 
+    }
   }
 }
 

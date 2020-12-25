@@ -6,17 +6,22 @@ void defaultConnectionCallback(const TcpConnectionPtr& conn)
 {
   
   // do not call conn->forceClose(), because some users want to register message callback only.
+  printf("a conn !!\n");
 }
 
 void defaultMessageCallback(const TcpConnectionPtr&,
                                         Buffer* buf)
 {
+    printf("message !!\n");
 }
 
 TcpServer::TcpServer(EventLoop *loop, const TcpAddr& listenAddr, std::string name)
 : acceptor_(new Acceptor(loop, listenAddr)),
+loop_(loop),
 nextConnId_(0),
-name_(name)
+name_(name),
+connect_callback_(defaultConnectionCallback),
+message_callback_(defaultMessageCallback)
 {
     acceptor_->setNewConnectionCallback(std::bind(&TcpServer::newConnection, this, std::placeholders::_1, std::placeholders::_2));
 }
@@ -47,7 +52,7 @@ void TcpServer::newConnection(int sockfd, const TcpAddr& peerAddr)
 {
     TcpAddr localaddr(getSockAddr(sockfd));
     char buf[64];
-    sprintf(buf,"%d",nextConnId_++);
+    sprintf(buf,":%d",nextConnId_++);
     std::string connName = name_ + buf;
     TcpConnectionPtr conn(new TcpConnection(loop_,
                                           connName,
@@ -70,9 +75,9 @@ void TcpServer::removeConnection(const TcpConnectionPtr& conn)
 
 void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
 {
-  size_t n = connections_.erase(conn->name());
-  EventLoop* ioLoop = conn->getLoop();
-  ioLoop->runInLoop(
-      std::bind(&TcpConnection::connectDestroyed, conn));
+    size_t n = connections_.erase(conn->name());
+    EventLoop* ioLoop = conn->getLoop();
+    ioLoop->runInLoop(
+        std::bind(&TcpConnection::connectDestroyed, conn));
 }
 

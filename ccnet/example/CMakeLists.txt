@@ -13,8 +13,10 @@ include_directories(${PROJECT_SOURCE_DIR}/
                     ${PROJECT_SOURCE_DIR}/../net)
 link_directories(${PROJECT_SOURCE_DIR}/../lib)
 
-set(PROJECT_LIBRARIES ccnet.a)
-set(PROJECT_SOURCES server.cc)
+set(PROJECT_LIBRARIES ccnet)
+set(PROJECT_SOURCES 
+        server.cc
+        EchoServer.cc)
 
 add_executable(${PROJECT_OUT} ${PROJECT_SOURCES})
 target_link_libraries(${PROJECT_OUT} ${PROJECT_LIBRARIES})

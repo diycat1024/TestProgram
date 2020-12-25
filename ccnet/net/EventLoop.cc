@@ -1,23 +1,23 @@
+#include <csignal>
 #include "EventLoop.h"
 #include "EPollPoller.h"
 #include "Channel.h"
 
 EventLoop::EventLoop(/* args */)
-: quit_(true),
-looping_(false),
-poller_(new EPollPoller(this))
+:poller_(new EPollPoller(this))
 {
 }
 
 EventLoop::~EventLoop()
 {
+
 }
 
 void EventLoop::loop()
 {
     quit_ = false;
     looping_ = true;
-    
+
     while(!quit_)
     {
         active_channels_.clear();
