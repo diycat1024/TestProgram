@@ -88,9 +88,6 @@ ssize_t Buffer::append(const char* data, ssize_t len)
     makeSpace(len);
     std::copy(data, data+len, beginWrite());
     write_index_ += len;
-    printf("append: data: %s, %d\n",data,len);
-    printf("append: output_buffer_: %s, %d\n", peek(),readableBytes());
-
 }
 
 

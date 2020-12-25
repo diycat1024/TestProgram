@@ -56,7 +56,6 @@ void TcpConnection::sendInLoop(const char* data, int len)
   if (conn_state_ == kConnected)
   {
     output_buffer_.append(static_cast<const char*>(data), len);
-    printf("sendInLoop: data %s, %d\n",data,len);
     if (!channel_->isWriting())
     {
       channel_->enableWriting();
@@ -109,11 +108,11 @@ void TcpConnection::handleWrite()
     // printf("send: %s, %d\n", output_buffer_.peek(),output_buffer_.readableBytes());
     if (n > 0)
     {
-      printf("tcp handleWrite:%d\n", n);
       output_buffer_.retrieve(n);
       if (output_buffer_.readableBytes() == 0)
       {
         //todo  缓冲区没有数据可以写入了。
+        channel_->disableWriting();
       }
 
     }

@@ -75,6 +75,7 @@ void TcpServer::removeConnection(const TcpConnectionPtr& conn)
 
 void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
 {
+    printf("TcpServer remove conn\n");
     size_t n = connections_.erase(conn->name());
     EventLoop* ioLoop = conn->getLoop();
     ioLoop->runInLoop(

@@ -82,6 +82,7 @@ void EPollPoller::updateChannel(Channel *channel)
 void EPollPoller::removeChannel(Channel *channel)
 {
     int fd = channel->fd();
+    printf("epoll channel remove: %d\n", fd);
     size_t n = channels_.erase(fd);
     update(EPOLL_CTL_DEL, channel);
 }

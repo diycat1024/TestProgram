@@ -85,7 +85,7 @@ void Channel::handleEvent()
     }
     if (revents_ & (EPOLLERR))
     {
-        printf("handleEvent error: %d\n", fd_);
+        printf("handleEvent error: error_callback_");
         if (error_callback_) error_callback_();
     }
 
