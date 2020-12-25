@@ -12,7 +12,7 @@
 #include <unistd.h>
 
 #define EPOLL_SIZE 5000
-#define BUF_SIZE 1024
+#define BUF_SIZE 208
 
 
 std::list<int> clients;
@@ -28,34 +28,38 @@ int addfd(int epollfd, int fd, bool enable_et)
     fcntl(fd, F_SETFL, fcntl(fd, F_GETFD, 0)| O_NONBLOCK);
 }
 
-int sendBroadcastmessage(int fd)
+int sendBroadcastmessage(int epollfd, int fd)
 {
     char buf[BUF_SIZE] = {0};
-    
-    printf("read from (clientfd %d)\n", fd);
+    memset(buf, 0, sizeof buf);
     int len = recv(fd,buf, sizeof(buf), 0);
     if (len <= 0)
     {
+        struct epoll_event ev;
+        ev.data.fd = fd;
+        ev.events = EPOLLIN;
+        epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, &ev);
         close(fd);
         clients.remove(fd);
+        printf("read from (clientfd %d) error,  exit !!!!!\n", fd);
 
     }else
     {
+        printf("read from (clientfd %d), buf %s\n", fd, buf);
         char response[BUF_SIZE] = {0};
-
-        sprintf(response,"send frome (clientfd %d), %s\n", fd, buf);
+        sprintf(response,"send frome (clientfd %d), helololo\n", fd);
         for (auto &it : clients)
         {
             
-            len = send(it, response, strlen(response), 0);
+            len = send(it, response, strlen(response), MSG_WAITALL);
             if (len <= 0)
             {
-                perror("error\n");
-                exit(-1);
+                fprintf(stderr,"1111111111111111111111111 %s\n", errno);
+                break;
             }
+            printf("send msg success:%s", response);
         }
     }
-    
 }
 
 int main()
@@ -109,7 +113,7 @@ int main()
 
             }
             else{
-                int ret = sendBroadcastmessage(sockfd);
+                int ret = sendBroadcastmessage(epfd,sockfd);
                 if(ret < 0) { perror("send error"); exit(-1); }
                 
             }
