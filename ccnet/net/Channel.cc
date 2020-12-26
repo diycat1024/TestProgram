@@ -69,6 +69,9 @@ void Channel::disableWriting()
 
 void Channel::handleEvent()
 {
+    std::shared_ptr<void> guard;
+    guard = tie_.lock();
+    
     if ((revents_ & EPOLLHUP) && !(revents_ & EPOLLIN))
     {
         printf("handleEvent close: %d\n",fd_);
@@ -81,12 +84,34 @@ void Channel::handleEvent()
 
     if (revents_ & EPOLLOUT)
     {
-        if (write_callback_) write_callback_();
+        if (write_callback_) 
+        {
+            if (guard)
+            {
+                printf("handleEvent write: guard not null\n");
+            }
+            else
+            {
+                printf("handleEvent write: guard is null\n");
+            }
+            write_callback_();
+            printf("handleEvent write: write_callback_ success\n");
+        }
+        else
+        {
+            printf("handleEvent write: write_callback_ is null\n");
+        }
+        
     }
-    if (revents_ & (EPOLLERR))
+    if (revents_ & EPOLLERR)
     {
         printf("handleEvent error: error_callback_");
         if (error_callback_) error_callback_();
     }
 
+}
+
+void Channel::tie(const std::shared_ptr<void>& obj)
+{
+    tie_ = obj;
 }

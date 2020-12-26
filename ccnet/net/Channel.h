@@ -1,5 +1,6 @@
 #pragma once
 #include <map>
+#include <memory>
 #include <functional>
 
 class EventLoop;
@@ -35,16 +36,20 @@ typedef std::function<void ()> ReadCallBack;
     void disableAll() { events_ = 0; update(); }
     bool isWriting() const;
     bool isReading() const;
-
     void handleEvent();
+
+    void tie(const std::shared_ptr<void>& obj);
 private:
     int fd_;
     int revents_;
     int events_;
+    std::weak_ptr<void> tie_;
+
     ReadCallBack read_callback_;
     EventCallback write_callback_;
     EventCallback close_callback_;
     EventCallback error_callback_;
+
     EventLoop* loop_;
     
 };

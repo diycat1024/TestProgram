@@ -28,7 +28,7 @@ void TcpConnection::connectEstablished()
 {
   setConnState(kConnected);
   channel_->enableReading();
-
+  channel_->tie(shared_from_this());
   connect_callback_(shared_from_this());
 }
 
@@ -102,7 +102,8 @@ void TcpConnection::handleRead()
 
 void TcpConnection::handleWrite()
 {
-  if (channel_->isWriting())
+  printf("TcpConnection::handleWrite start.....\n");
+  if (channel_ && channel_->isWriting())
   {
     ssize_t n = ::send(channel_->fd(), output_buffer_.peek(), output_buffer_.readableBytes(), 0);
     // printf("send: %s, %d\n", output_buffer_.peek(),output_buffer_.readableBytes());
@@ -124,7 +125,6 @@ void TcpConnection::handleClose()
   setConnState(kDisconnected);
   channel_->disableAll();
   close_callback_(shared_from_this());
-
 }
 
 void TcpConnection::handleError()
