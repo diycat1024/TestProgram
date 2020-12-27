@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="HiRedisTest"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="clang"/>
+		<Option virtualFolders="CMake Files\;CMake Files\hiredis_test\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="HiRedisTest">
+				<Option output="/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test/HiRedisTest" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-D_WIN32_WINNT=0x0501"/>
+					<Add option="-DUNICODE"/>
+					<Add directory="/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test"/>
+					<Add directory="/Users/sources/C++/TestProgram/hiredis_test"/>
+					<Add directory="/Users/sources/C++/TestProgram/hiredis_test/../inc"/>
+					<Add directory="/Users/sources/C++/TestProgram/hiredis_test/inc"/>
+					<Add directory="/Users/sources/C++/TestProgram/hiredis_test/E:/idzqj/Work/harry/IM-Server/vcpkg/installed/x64-windows/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test/Makefile&quot;  VERBOSE=1 HiRedisTest"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="HiRedisTest/fast">
+				<Option output="/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test/HiRedisTest" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-D_WIN32_WINNT=0x0501"/>
+					<Add option="-DUNICODE"/>
+					<Add directory="/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test"/>
+					<Add directory="/Users/sources/C++/TestProgram/hiredis_test"/>
+					<Add directory="/Users/sources/C++/TestProgram/hiredis_test/../inc"/>
+					<Add directory="/Users/sources/C++/TestProgram/hiredis_test/inc"/>
+					<Add directory="/Users/sources/C++/TestProgram/hiredis_test/E:/idzqj/Work/harry/IM-Server/vcpkg/installed/x64-windows/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test/Makefile&quot;  VERBOSE=1 HiRedisTest/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/hiredis_test/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/sources/C++/TestProgram/hiredis_test/inc/redis_client.h">
+			<Option target="HiRedisTest"/>
+		</Unit>
+		<Unit filename="/Users/sources/C++/TestProgram/hiredis_test/inc/redis_manage.h">
+			<Option target="HiRedisTest"/>
+		</Unit>
+		<Unit filename="/Users/sources/C++/TestProgram/hiredis_test/inc/redis_pool.h">
+			<Option target="HiRedisTest"/>
+		</Unit>
+		<Unit filename="/Users/sources/C++/TestProgram/hiredis_test/src/mian.cpp">
+			<Option target="HiRedisTest"/>
+		</Unit>
+		<Unit filename="/Users/sources/C++/TestProgram/hiredis_test/src/redis_client.cpp">
+			<Option target="HiRedisTest"/>
+		</Unit>
+		<Unit filename="/Users/sources/C++/TestProgram/hiredis_test/src/redis_manage.cpp">
+			<Option target="HiRedisTest"/>
+		</Unit>
+		<Unit filename="/Users/sources/C++/TestProgram/hiredis_test/src/redis_pool.cpp">
+			<Option target="HiRedisTest"/>
+		</Unit>
+		<Unit filename="/Users/sources/C++/TestProgram/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/Users/sources/C++/TestProgram/hiredis_test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\hiredis_test\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

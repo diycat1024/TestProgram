@@ -4,7 +4,6 @@
 
 void defaultConnectionCallback(const TcpConnectionPtr& conn)
 {
-  
   // do not call conn->forceClose(), because some users want to register message callback only.
   printf("a conn !!\n");
 }
@@ -75,7 +74,6 @@ void TcpServer::removeConnection(const TcpConnectionPtr& conn)
 
 void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
 {
-    printf("TcpServer remove conn\n");
     size_t n = connections_.erase(conn->name());
     EventLoop* ioLoop = conn->getLoop();
     ioLoop->runInLoop(

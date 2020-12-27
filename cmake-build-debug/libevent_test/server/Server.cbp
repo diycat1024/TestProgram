@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="Server"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="clang"/>
+		<Option virtualFolders="CMake Files\;CMake Files\libevent_test\;CMake Files\libevent_test\client\;CMake Files\libevent_test\server\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/sources/C++/TestProgram/cmake-build-debug/libevent_test/server"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/libevent_test/server/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/libevent_test/server/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/libevent_test/server/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/libevent_test/server/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Server">
+				<Option output="/Users/sources/C++/TestProgram/bin/Server" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/sources/C++/TestProgram/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DUNICODE"/>
+					<Add option="-DMACOS"/>
+					<Add option="-D_CRT_SECURE_NO_WARNINGS"/>
+					<Add directory="/Users/sources/C++/TestProgram/cmake-build-debug/libevent_test/server"/>
+					<Add directory="/Users/sources/C++/TestProgram/libevent_test/server"/>
+					<Add directory="/Users/sources/C++/TestProgram/libevent_test/server/./inc"/>
+					<Add directory="/Users/sources/C++/TestProgram/libevent_test/server/../../inc"/>
+					<Add directory="/Users/sources/C++/TestProgram/libevent_test/server/../../inc/libevent"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/libevent_test/server/Makefile&quot;  VERBOSE=1 Server"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/libevent_test/server/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/libevent_test/server/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/libevent_test/server/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Server/fast">
+				<Option output="/Users/sources/C++/TestProgram/bin/Server" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/sources/C++/TestProgram/bin"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DUNICODE"/>
+					<Add option="-DMACOS"/>
+					<Add option="-D_CRT_SECURE_NO_WARNINGS"/>
+					<Add directory="/Users/sources/C++/TestProgram/cmake-build-debug/libevent_test/server"/>
+					<Add directory="/Users/sources/C++/TestProgram/libevent_test/server"/>
+					<Add directory="/Users/sources/C++/TestProgram/libevent_test/server/./inc"/>
+					<Add directory="/Users/sources/C++/TestProgram/libevent_test/server/../../inc"/>
+					<Add directory="/Users/sources/C++/TestProgram/libevent_test/server/../../inc/libevent"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/11.0.3/include"/>
+					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/libevent_test/server/Makefile&quot;  VERBOSE=1 Server/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/libevent_test/server/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/libevent_test/server/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/Users/sources/C++/TestProgram/cmake-build-debug/libevent_test/server/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/sources/C++/TestProgram/libevent_test/server/src/TcpServer.cpp">
+			<Option target="Server"/>
+		</Unit>
+		<Unit filename="/Users/sources/C++/TestProgram/libevent_test/server/src/main.cpp">
+			<Option target="Server"/>
+		</Unit>
+		<Unit filename="/Users/sources/C++/TestProgram/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/Users/sources/C++/TestProgram/libevent_test/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\libevent_test\"/>
+		</Unit>
+		<Unit filename="/Users/sources/C++/TestProgram/libevent_test/client/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\libevent_test\client\"/>
+		</Unit>
+		<Unit filename="/Users/sources/C++/TestProgram/libevent_test/server/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\libevent_test\server\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

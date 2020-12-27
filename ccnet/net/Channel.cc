@@ -41,20 +41,19 @@ void Channel::enableConnecting()
 
 void Channel::enableReading()
 {
-    events_ |= (EPOLLIN | EPOLLPRI);
+    events_ |= (EPOLLIN | EPOLLPRI | EPOLLET);
     update();
 }
 
 void Channel::disableReading()
 {
     //todo why
-    events_ &= ~(EPOLLIN | EPOLLPRI);
+    events_ &= ~(EPOLLIN | EPOLLPRI | EPOLLET);
     update();
 }
 
 void Channel::enableWriting()
 {
-    printf("Channel, enableWriting\n");
     events_ |= EPOLLOUT;
     update();
 }
@@ -70,8 +69,7 @@ void Channel::disableWriting()
 void Channel::handleEvent()
 {
     std::shared_ptr<void> guard;
-    guard = tie_.lock();
-    
+    guard = tie_.lock(); //这样做是为了防止TcpConnectionPtr的引用计数变为零，从而被析构。
     if ((revents_ & EPOLLHUP) && !(revents_ & EPOLLIN))
     {
         printf("handleEvent close: %d\n",fd_);
@@ -84,28 +82,11 @@ void Channel::handleEvent()
 
     if (revents_ & EPOLLOUT)
     {
-        if (write_callback_) 
-        {
-            if (guard)
-            {
-                printf("handleEvent write: guard not null\n");
-            }
-            else
-            {
-                printf("handleEvent write: guard is null\n");
-            }
-            write_callback_();
-            printf("handleEvent write: write_callback_ success\n");
-        }
-        else
-        {
-            printf("handleEvent write: write_callback_ is null\n");
-        }
-        
+        if (write_callback_) write_callback_();
     }
     if (revents_ & EPOLLERR)
     {
-        printf("handleEvent error: error_callback_");
+        printf("handleEvent error: error_callback_,  revents_: %d\n", revents_);
         if (error_callback_) error_callback_();
     }
 

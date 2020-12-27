@@ -40,7 +40,7 @@ void TcpConnection::connectDestroyed()
     channel_->disableAll();
     connect_callback_(shared_from_this());
   }
-  channel_->remove();
+  //channel_->remove();
 }
 
 void TcpConnection::send(Buffer* msg)
@@ -84,7 +84,7 @@ void TcpConnection::handleRead()
 {
   int save_err;
   ssize_t n = input_buffer_.readFd(channel_->fd(),  &save_err);
-  printf("recv len: %d\n", n);
+  // printf("handleRead::  recv len: %d\n", n);
   if (n > 0)
   {
     message_callback_(shared_from_this(), &input_buffer_);
@@ -102,11 +102,9 @@ void TcpConnection::handleRead()
 
 void TcpConnection::handleWrite()
 {
-  printf("TcpConnection::handleWrite start.....\n");
   if (channel_ && channel_->isWriting())
   {
     ssize_t n = ::send(channel_->fd(), output_buffer_.peek(), output_buffer_.readableBytes(), 0);
-    // printf("send: %s, %d\n", output_buffer_.peek(),output_buffer_.readableBytes());
     if (n > 0)
     {
       output_buffer_.retrieve(n);
@@ -129,5 +127,5 @@ void TcpConnection::handleClose()
 
 void TcpConnection::handleError()
 {
-
+  printf("TcpConnection::handleError, fd: %d\n", fd_);
 }

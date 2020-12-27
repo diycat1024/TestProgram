@@ -46,7 +46,7 @@ void client()
 int main(int argc, char const *argv[])
 {
 	addr.sin_port = htons(8883);
-	addr.sin_addr.s_addr = inet_addr("192.168.6.143");
+	addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 	addr.sin_family = AF_INET;
 	if (argc < 2)
 	{

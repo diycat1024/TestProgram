@@ -26,7 +26,7 @@ typedef std::function<void ()> ReadCallBack;
     int  fd()        const { return fd_;}
     int  isNoEvent() const { return events_ == 0;};
     int  events()    const {return events_;}
-    void setEvents(uint32_t event) { revents_ = event;}
+    void setEvents(int event) { revents_ = event;}
 
     void enableConnecting();
     void enableReading();

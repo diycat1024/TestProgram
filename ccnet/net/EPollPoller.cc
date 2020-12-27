@@ -65,24 +65,23 @@ void EPollPoller::updateChannel(Channel *channel)
     {
         if (channel->isNoEvent())
         {
-            printf("remove channel,fd: %d\n", fd);
+            // printf("remove channel,fd: %d\n", fd);
             update(EPOLL_CTL_DEL, channel);
+            removeChannel(channel);
         }else
         {
-            printf("mod channel,fd: %d\n", fd);
             update(EPOLL_CTL_MOD, channel);
         }
     }else {
         channels_[fd] = channel;
         update(EPOLL_CTL_ADD, channel);
-        printf("add channel,fd: %d\n", fd);
+        // printf("add channel,fd: %d\n", fd);
     }
 }
 
 void EPollPoller::removeChannel(Channel *channel)
 {
     int fd = channel->fd();
-    printf("epoll channel remove: %d\n", fd);
     size_t n = channels_.erase(fd);
     update(EPOLL_CTL_DEL, channel);
 }
